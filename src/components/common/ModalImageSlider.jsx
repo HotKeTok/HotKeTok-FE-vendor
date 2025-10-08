@@ -49,6 +49,7 @@ export default function ModalImageSlider({
       onClose={onClose}
       justify="flex-end"
       padding={0}
+      dimmed={false}
       style={{ ...ImageModalStyle }}
     >
       <Row $justify="space-between" $align="center" style={{ padding: 16 }}>
