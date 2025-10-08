@@ -6,6 +6,7 @@ import { color, typo } from '../styles/tokens';
 import Button from '../components/common/Button';
 import TextField from '../components/common/TextField';
 import Modal from '../components/common/Modal';
+import ModalImageSlider from '../components/common/ModalImageSlider';
 
 import { OverlayContext } from '../styles/OverlayContext';
 
@@ -112,6 +113,8 @@ const MOCK_REQUESTS = [
 export default function FindRepairTemplate() {
   const [requests] = useState(MOCK_REQUESTS); // []로 변경하면 수리 요청 없을 때 화면 확인 가능
   const [selectedId, setSelectedId] = useState(requests[0]?.id ?? null);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
 
   // 🔹 Layout의 Overlay 포털 제어
   const { isOpen: overlayOpen, setOverlayContent, clearOverlay } = useContext(OverlayContext);
@@ -163,7 +166,13 @@ export default function FindRepairTemplate() {
                   {selected.images.length > 0 ? (
                     <ImageGrid>
                       {selected.images.map((src, idx) => (
-                        <Thumb key={idx}>
+                        <Thumb
+                          key={idx}
+                          onClick={() => {
+                            setViewerIndex(idx);
+                            setViewerOpen(true);
+                          }}
+                        >
                           <img src={src} alt={`증상 사진 ${idx + 1}`} />
                         </Thumb>
                       ))}
@@ -185,6 +194,15 @@ export default function FindRepairTemplate() {
             </LeftEmptyWrap>
           )}
         </LeftSection>
+
+        {/* 이미지 슬라이더 */}
+        <ModalImageSlider
+          title={selected?.title || ''}
+          isOpen={viewerOpen}
+          onClose={() => setViewerOpen(false)}
+          imageUrls={selected?.images || []}
+          startIndex={viewerIndex}
+        />
 
         {/* 우측 리스트 (Overlay 열리면 숨김) */}
         {!overlayOpen && (
@@ -422,6 +440,10 @@ const Thumb = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+  cursor: pointer;
+  &:hover {
+    opacity: 0.9;
   }
 `;
 const DescriptionBox = styled.div`
