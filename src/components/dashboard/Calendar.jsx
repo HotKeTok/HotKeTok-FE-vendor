@@ -56,6 +56,10 @@ export default function Calendar({
           <DayLabel key={day}>{day}</DayLabel>
         ))}
         {days.map(day => {
+          if (!isSameMonth(day, monthStart)) {
+            return <EmptyCell key={day.toString()} />;
+          }
+
           const dayData = dataMap.get(format(day, 'yyyy-MM-dd'));
 
           const repairCount = dayData ? dayData.repairs.length : 0;
@@ -135,12 +139,16 @@ const Grid = styled.div`
 const DayLabel = styled.div`
   text-align: center;
   ${typo('button3')};
-  color: ${color('grayscale.300')};
+  color: ${color('grayscale.500')};
   padding-top: 15px;
   padding-bottom: 15px;
 
   border-bottom: 1px solid #d9d9d9;
   margin-bottom: 15px;
+`;
+
+const EmptyCell = styled.div`
+  height: 82px;
 `;
 
 const DateCell = styled.div`

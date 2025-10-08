@@ -224,8 +224,8 @@ export const DASHBOARD_DUMMY_DATA = {
       estimateDetails: '견적 내용 예시입니다. 견적 내용 예시입니다.', // 견적 내용
       symptomPhotos: [
         // 증상 사진 URL 배열
-        'https://picsum.photos/200',
-        'https://picsum.photos/200',
+        'https://picsum.photos/200/80',
+        'https://picsum.photos/100/100',
         'https://picsum.photos/200',
         'https://picsum.photos/200',
         'https://picsum.photos/200',

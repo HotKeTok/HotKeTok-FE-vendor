@@ -6,19 +6,21 @@ import { typo, color } from '../../styles/tokens';
 import CloseIcn from '../../assets/common/icon-close.svg?react';
 import ArrowRightIcn from '../../assets/common/icon-arrow-right.svg?react';
 
-// 1. props 이름을 startIndex로 변경 (기본값 0)
-export default function ModalImageSlider({ isOpen, onClose, imageUrls = [], startIndex = 0 }) {
-  // 2. useState의 초기값을 startIndex prop으로 설정
+export default function ModalImageSlider({
+  title,
+  isOpen,
+  onClose,
+  imageUrls = [],
+  startIndex = 0,
+}) {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
 
-  // 3. useEffect를 수정하여 isOpen이나 startIndex가 변경될 때마다 currentIndex를 업데이트
   useEffect(() => {
     if (isOpen) {
       setCurrentIndex(startIndex);
     }
   }, [isOpen, startIndex]);
 
-  // 이 부분은 Modal 컴포넌트가 처리하므로 필수는 아님
   if (!isOpen) {
     return null;
   }
@@ -37,6 +39,8 @@ export default function ModalImageSlider({ isOpen, onClose, imageUrls = [], star
     minWidth: '460px',
     minHeight: '50%',
     marginRight: '24px',
+    display: 'grid',
+    gridTemplateRows: 'auto 1fr',
   };
 
   return (
@@ -49,7 +53,7 @@ export default function ModalImageSlider({ isOpen, onClose, imageUrls = [], star
     >
       <Row $justify="space-between" $align="center" style={{ padding: 16 }}>
         <Row $gap={6} $align="center">
-          <Title>증상 사진</Title>
+          <Title>{title}</Title>
           <ImageCount>{`${currentIndex + 1}/${imageUrls.length}`}</ImageCount>
         </Row>
         <CloseIcn onClick={onClose} style={{ cursor: 'pointer' }} />
@@ -79,6 +83,8 @@ const ImageCount = styled.div`
 `;
 
 const GalleryWrapper = styled.div`
+  height: 100%;
+
   display: flex;
   justify-content: center;
   align-items: center;

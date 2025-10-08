@@ -6,7 +6,7 @@ import Calendar from '../components/dashboard/Calendar';
 import RepairDetailBox from '../components/common/BoxRepairDetail';
 import { Column, Row } from '../styles/flex';
 import Modal from '../components/common/Modal';
-import ModalRepairDetail from '../components/dashboard/ModalRepairDetail';
+import ModalRepairDetail from '../components/common/ModalRepairDetail';
 import ModalImageSlider from '../components/common/ModalImageSlider';
 import { useNavigate } from 'react-router-dom';
 import { isToday, format } from 'date-fns';
@@ -55,6 +55,7 @@ export default function DashboardTemplate({
       )}
       {selectedImageModalOpen && selectedImageIndex !== null && (
         <ModalImageSlider
+          title="증상 사진"
           isOpen={selectedImageModalOpen && selectedImageIndex !== null}
           onClose={() => setSelectedImageModalOpen(false)}
           imageUrls={
