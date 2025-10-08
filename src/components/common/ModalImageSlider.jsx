@@ -7,21 +7,16 @@ import CloseIcn from '../../assets/common/icon-close.svg?react';
 import ArrowRightIcn from '../../assets/common/icon-arrow-right.svg?react';
 
 // 1. props 이름을 startIndex로 변경 (기본값 0)
-export default function ModalImageDetail({
-  isOpen,
-  onClose,
-  imageUrls = [],
-  clickedImageIndex = 0,
-}) {
+export default function ModalImageSlider({ isOpen, onClose, imageUrls = [], startIndex = 0 }) {
   // 2. useState의 초기값을 startIndex prop으로 설정
-  const [currentIndex, setCurrentIndex] = useState(clickedImageIndex);
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
 
   // 3. useEffect를 수정하여 isOpen이나 startIndex가 변경될 때마다 currentIndex를 업데이트
   useEffect(() => {
     if (isOpen) {
-      setCurrentIndex(clickedImageIndex);
+      setCurrentIndex(startIndex);
     }
-  }, [isOpen, clickedImageIndex]);
+  }, [isOpen, startIndex]);
 
   // 이 부분은 Modal 컴포넌트가 처리하므로 필수는 아님
   if (!isOpen) {

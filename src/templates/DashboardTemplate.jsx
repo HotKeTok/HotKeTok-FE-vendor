@@ -7,7 +7,7 @@ import RepairDetailBox from '../components/common/BoxRepairDetail';
 import { Column, Row } from '../styles/flex';
 import Modal from '../components/common/Modal';
 import ModalRepairDetail from '../components/dashboard/ModalRepairDetail';
-import ModalImageDetail from '../components/common/ModalImageDetail';
+import ModalImageSlider from '../components/common/ModalImageSlider';
 import { useNavigate } from 'react-router-dom';
 import { isToday, format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -54,13 +54,13 @@ export default function DashboardTemplate({
         />
       )}
       {selectedImageModalOpen && selectedImageIndex !== null && (
-        <ModalImageDetail
+        <ModalImageSlider
           isOpen={selectedImageModalOpen && selectedImageIndex !== null}
           onClose={() => setSelectedImageModalOpen(false)}
           imageUrls={
             selectedDateRepairs.find(repair => repair.id === clickedRepairId)?.symptomPhotos || []
           }
-          clickedImageIndex={selectedImageIndex}
+          startIndex={selectedImageIndex}
         />
       )}
       <div>
