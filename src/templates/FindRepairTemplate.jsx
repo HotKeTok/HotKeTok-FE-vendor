@@ -326,7 +326,7 @@ const LeftSection = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  transition: width 0.28s ease; /* ✅ width 변화로 부드럽게 줄어듦 */
+  transition: width 0.3s ease; /* ✅ width 변화로 부드럽게 줄어듦 */
 `;
 
 const RightSection = styled.div`
@@ -492,7 +492,7 @@ const SheetPanel = styled.div`
   animation: ${keyframes`
     from { transform: translateX(40px); opacity: 0; }
     to   { transform: translateX(0);    opacity: 1; }
-  `} 0.25s ease-out both;
+  `} 0.3s ease-out both;
 `;
 
 const CheckRow = styled.button`
