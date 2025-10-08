@@ -6,26 +6,33 @@ import { typo, color } from '../../styles/tokens';
  * @param {boolean} active - 활성/비활성 (기본 true)
  * @param {string} text - 버튼 텍스트
  * @param {'full'|number|string} width - 미지정: 100%, 'full': 100%, 숫자: px, 그 외 문자열 그대로
+ * @param {number} height - 버튼 높이 (기본 42px)
  * @param {boolean} dismiss - 닫기/보조 액션 스타일 (기본 false)
  * @param {function} onClick - 클릭 핸들러
+ * @param {object} rest - 추가 props
  */
 export default function Button({
   active = true,
   text,
   width = 'full',
+<<<<<<< HEAD
+=======
+  height = 42,
+>>>>>>> develop
   dismiss = false,
   onClick,
-  ...rest
+  rest,
 }) {
   return (
     <StyledButton
       type="button"
       $active={active}
       $width={width}
+      $height={height}
       $dismiss={dismiss}
       onClick={active ? onClick : undefined}
       disabled={!active}
-      {...rest}
+      style={rest}
     >
       <div>{text}</div>
     </StyledButton>
@@ -45,10 +52,10 @@ export const resolveWidth = w => {
 };
 
 const StyledButton = styled.button`
-  height: 50px;
+  height: ${({ $height }) => $height || 42}px;
   width: ${({ $width }) => resolveWidth($width)};
   border-radius: 10px;
-  ${typo('button1')};
+  ${typo('button2')};
 
   /* 상태별 색상 (기본/dismiss) */
   background-color: ${({ $dismiss }) => ($dismiss ? 'white' : color('brand.primary'))};
