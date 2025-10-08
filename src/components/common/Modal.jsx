@@ -2,7 +2,15 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
-const modalRoot = document.getElementById('modal-root');
+// modal-root가 없을 때도 동작하도록 보강
+const modalRoot =
+  document.getElementById('modal-root') ||
+  (() => {
+    const el = document.createElement('div');
+    el.id = 'modal-root';
+    document.body.appendChild(el);
+    return el;
+  })();
 
 /**
  * @description 모달 기본 컴포넌트
@@ -56,7 +64,7 @@ const ModalOverlay = styled.div`
   display: flex;
   justify-content: ${props => props.justify};
   align-items: ${props => props.align};
-  z-index: 1000;
+  z-index: 10000;
 `;
 
 const ModalContainer = styled.div`
@@ -64,7 +72,7 @@ const ModalContainer = styled.div`
   padding: 24px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1001;
+  z-index: 10001;
 
   width: auto;
 `;

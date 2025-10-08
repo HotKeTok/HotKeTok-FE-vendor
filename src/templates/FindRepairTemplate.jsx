@@ -2,8 +2,10 @@ import React, { useMemo, useState, useContext } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Column, Row } from '../styles/flex';
 import { color, typo } from '../styles/tokens';
+
 import Button from '../components/common/Button';
 import TextField from '../components/common/TextField';
+import Modal from '../components/common/Modal';
 
 import { OverlayContext } from '../styles/OverlayContext';
 
@@ -249,9 +251,9 @@ function QuoteSheet({ request, onClose }) {
   const [amount, setAmount] = useState('');
   const [afterConsult, setAfterConsult] = useState(false);
   const [content, setContent] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const disabled = (!afterConsult && amount.trim() === '') || content.trim() === '';
-
+  const isActive = (afterConsult || amount.trim() !== '') && content.trim() !== '';
   return (
     <SheetPanel>
       <Column $gap={30}>
@@ -303,8 +305,61 @@ function QuoteSheet({ request, onClose }) {
         </Column>
         <SheetFooter>
           <GhostButton onClick={onClose}>취소</GhostButton>
-          <Button text={'견적서 보내기'} width="160px" />
+          <Button
+            text="견적서 보내기"
+            width="160px"
+            active={isActive}
+            onClick={() => {
+              if (isActive) setConfirmOpen(true);
+            }}
+          />
         </SheetFooter>
+        {/* 확인 모달 */}
+        <Modal
+          isOpen={confirmOpen}
+          onClose={() => setConfirmOpen(false)}
+          style={{ width: 450, borderRadius: 12, padding: '24px 30px' }}
+        >
+          <Column $gap={30}>
+            <Column $gap={4} $align={'start'}>
+              <Title>견적서를 보낼까요?</Title>
+              <Body2_black>{request.address}</Body2_black>
+            </Column>
+            <Column $gap={12}>
+              <ConfirmRow>
+                <Button2_black>수리 분야</Button2_black>
+                <Body2_600>{request.title}</Body2_600>
+              </ConfirmRow>
+              <ConfirmRow>
+                <Button2_black>수리 예정 날짜</Button2_black>
+                <Body2_600>{request.preferredDate}</Body2_600>
+              </ConfirmRow>
+              <ConfirmRow>
+                <Button2_black>금액</Button2_black>
+                <Body2_600>
+                  {afterConsult ? '상담 후 결정' : `${Number(amount || 0).toLocaleString()}원`}
+                </Body2_600>
+              </ConfirmRow>
+              <ConfirmRow $col>
+                <Button2_black>내용</Button2_black>
+                <ConfirmTextBox>{content}</ConfirmTextBox>
+              </ConfirmRow>
+            </Column>
+
+            <ConfirmActions>
+              <ConfirmCancel onClick={() => setConfirmOpen(false)}>아니요</ConfirmCancel>
+              <Button
+                text="네, 보낼게요"
+                width="130px"
+                onClick={() => {
+                  // TODO: 실제 전송 로직 연동 지점
+                  setConfirmOpen(false);
+                  // onClose(); // 전송 후 시트까지 닫고 싶으면 주석 해제
+                }}
+              />
+            </ConfirmActions>
+          </Column>
+        </Modal>
       </Column>
     </SheetPanel>
   );
@@ -538,8 +593,50 @@ const GhostButton = styled.button`
   ${typo('button2')};
   padding: 12px 16px;
   border-radius: 10px;
+  height: 42px;
   border: 1px solid ${color('grayscale.300')};
   background: #fff;
   color: ${color('black')};
+  cursor: pointer;
+  white-space: nowrap;
+`;
+
+/* ============================
+ * 모달 스타일
+ * ============================ */
+
+const ConfirmRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: ${({ $col }) => ($col ? 'flex-start' : 'center')};
+  gap: 10px;
+  ${({ $col }) => $col && 'flex-direction: column;'}
+`;
+
+const ConfirmTextBox = styled.div`
+  ${typo('body2')};
+  color: ${color('black')};
+  text-align: start;
+  width: 100%;
+  min-height: 90px;
+  padding: 13px 15px;
+  border-radius: 6px;
+  border: 1px solid ${color('grayscale.200')};
+  background: ${color('grayscale.100')};
+  white-space: pre-wrap;
+`;
+const ConfirmActions = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+`;
+const ConfirmCancel = styled.button`
+  ${typo('button2')};
+  padding: 12px 16px;
+  width: 130px;
+  border-radius: 10px;
+  border: 1px solid ${color('grayscale.300')};
+  background: #fff;
+  color: ${color('grayscale.600')};
   cursor: pointer;
 `;
