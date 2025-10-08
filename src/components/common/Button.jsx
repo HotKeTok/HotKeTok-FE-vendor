@@ -15,10 +15,7 @@ export default function Button({
   active = true,
   text,
   width = 'full',
-<<<<<<< HEAD
-=======
   height = 42,
->>>>>>> develop
   dismiss = false,
   onClick,
   rest,
