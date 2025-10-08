@@ -23,8 +23,6 @@ export default function RepairStatusChip({ status }) {
     setIsHovered(true);
   };
 
-  console.log(statusInfo);
-
   return (
     <ChipWrapper
       ref={chipRef}

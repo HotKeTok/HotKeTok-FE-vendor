@@ -2,11 +2,11 @@ import styled from 'styled-components';
 import { PROGRESS_STATUS_MAP } from '../../constants/Repair';
 import { REPAIR_COLOR_MAP } from '../../constants/Dashboard';
 import { typo } from '../../styles/tokens';
+import { DASHBOARD_STATUS_DESCRIPTION_MAP } from '../../constants/Dashboard';
 
 export default function RepairStatusBox({ status, count }) {
   const backgroundColor = REPAIR_COLOR_MAP[status] || 'gray';
-
-  const { description } = PROGRESS_STATUS_MAP[status] || {};
+  const description = DASHBOARD_STATUS_DESCRIPTION_MAP[status];
 
   return (
     <Box style={{ background: backgroundColor }}>

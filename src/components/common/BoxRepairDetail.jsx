@@ -3,28 +3,27 @@ import styled from 'styled-components';
 import { typo, color } from '../../styles/tokens';
 import { Row } from '../../styles/flex';
 import { PROGRESS_STATUS_MAP } from '../../constants/Repair';
-import TimeChip from './TimeChip';
+import TimeChip from '../dashboard/TimeChip';
 import { formatTime } from '../../utils/date';
 import ArrowRightIcn from '../../assets/common/icon-arrow-right.svg?react';
-import RepairStatusChip from '../common/RepairStatusChip';
-
-const getStatusColor = status => {
-  return PROGRESS_STATUS_MAP[status]?.textColor || color.black;
-};
+import RepairStatusChip from './RepairStatusChip';
 
 /**
  * @param {Object} repair - 수리 데이터 객체
  * @param {boolean} isToday - 오늘 수리 건인지 여부 (TimeChip 명시용)
+ * @param {function} onDetailClick - 상세보기 클릭 핸들러
+ * @param {object} style - 추가 스타일링을 위한 객체
  */
-export default function RepairDetailBox({ repair, isToday = true }) {
+export default function BoxRepairDetail({ repair, isToday = false, onDetailClick, style }) {
   if (!repair) {
     return null;
   }
 
-  const { status, title, location, repairDate, amount, costBearer, contact, description } = repair;
+  const { id, status, title, location, repairDate, amount, costBearer, contact, description } =
+    repair;
 
   return (
-    <Container>
+    <Container style={style}>
       {isToday && (
         <Header>
           <TimeChip time={formatTime(repairDate)} />
@@ -34,11 +33,11 @@ export default function RepairDetailBox({ repair, isToday = true }) {
 
       {
         <Row $justify="space-between" $align="center">
-          <Title>
+          <Title onClick={() => onDetailClick(id)}>
             <div>{title} </div>
             <StyledArrowRightIcn />
           </Title>
-          {!isToday && <StatusText $status={status}>{status} </StatusText>}
+          {!isToday && <RepairStatusChip status={status} />}
         </Row>
       }
       <Location>{location}</Location>
@@ -79,13 +78,6 @@ const Header = styled(Row)`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-`;
-
-// TODO: 공통 컴포넌트로 대체
-const StatusText = styled.span`
-  ${typo('body2')};
-  font-weight: 600;
-  color: ${({ $status }) => getStatusColor($status)};
 `;
 
 const Title = styled.h4`

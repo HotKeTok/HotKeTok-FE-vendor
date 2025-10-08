@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { color, typo } from '../styles/tokens';
 import RepairStatusBox from '../components/dashboard/RepairStatusBox';
 import Calendar from '../components/dashboard/Calendar';
-import RepairDetailBox from '../components/dashboard/RepairDetailBox';
+import RepairDetailBox from '../components/common/BoxRepairDetail';
 import { Column, Row } from '../styles/flex';
+import Modal from '../components/common/Modal';
+import ModalRepairDetail from '../components/dashboard/ModalRepairDetail';
+import ModalImageDetail from '../components/common/ModalImageDetail';
+import { useNavigate } from 'react-router-dom';
+import { isToday, format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 export default function DashboardTemplate({
   repairCounts, // (1) 수리 현황별 개수
@@ -15,8 +21,48 @@ export default function DashboardTemplate({
   setCurrentDate, // (2) 캘린더의 연/월 설정 함수
   setSelectedDate, // (2) 선택된 날짜 설정 함수
 }) {
+  const navigate = useNavigate();
+  const [clickedRepairId, setClickedRepairId] = useState(null); // 클릭된 수리 ID
+  const [detailModalOpen, setDetailModalOpen] = useState(false); // 수리 상세 모달
+
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null); // 클릭된 이미지 인덱스
+  const [selectedImageModalOpen, setSelectedImageModalOpen] = useState(false); // 이미지 모달
+
+  const onDetailModalOpen = id => {
+    setClickedRepairId(id);
+    setDetailModalOpen(true);
+  };
+
+  const onImageModalOpen = index => {
+    setSelectedImageIndex(index);
+    setSelectedImageModalOpen(true);
+  };
+
+  const onChatRoute = id => {
+    navigate(`/chat`); // todo : id 기반 채팅방으로 이동
+  };
+
   return (
     <Container>
+      {detailModalOpen && clickedRepairId && (
+        <ModalRepairDetail
+          detailModalOpen={detailModalOpen}
+          onClose={() => setDetailModalOpen(false)}
+          onChat={() => onChatRoute(clickedRepairId)}
+          onImgClick={index => onImageModalOpen(index)}
+          repairData={selectedDateRepairs.find(repair => repair.id === clickedRepairId)}
+        />
+      )}
+      {selectedImageModalOpen && selectedImageIndex !== null && (
+        <ModalImageDetail
+          isOpen={selectedImageModalOpen && selectedImageIndex !== null}
+          onClose={() => setSelectedImageModalOpen(false)}
+          imageUrls={
+            selectedDateRepairs.find(repair => repair.id === clickedRepairId)?.symptomPhotos || []
+          }
+          clickedImageIndex={selectedImageIndex}
+        />
+      )}
       <div>
         {/* 수리 현황 */}
         <Subtitle1>수리 현황</Subtitle1>
@@ -36,12 +82,17 @@ export default function DashboardTemplate({
 
       <RightContainer>
         <Column $gap={2}>
-          <H3>오늘의 일정</H3>
-          <Caption1>총 2개의 일정이 있어요.</Caption1>
+          <H3>
+            {isToday(selectedDate)
+              ? '오늘'
+              : format(selectedDate, 'yyyy년 MM월 dd일(E)', { locale: ko })}
+            의 일정
+          </H3>
+          <Caption1>총 {selectedDateRepairs.length}개의 일정이 있어요.</Caption1>
         </Column>
         <RightScrollContainer>
           {selectedDateRepairs.map((repair, index) => (
-            <RepairDetailBox key={index} repair={repair} />
+            <RepairDetailBox key={index} repair={repair} onDetailClick={onDetailModalOpen} />
           ))}
         </RightScrollContainer>
       </RightContainer>
