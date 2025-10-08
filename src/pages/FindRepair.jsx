@@ -1,5 +1,6 @@
 import React from 'react';
+import FindRepairTemplate from '../templates/FindRepairTemplate';
 
 export default function FindRepair() {
-  return <div>FindRepair</div>;
+  return <FindRepairTemplate />;
 }

@@ -1,5 +1,5 @@
-import styled from 'styled-components'
-import { typo, color } from '../../styles/tokens'
+import styled from 'styled-components';
+import { typo, color } from '../../styles/tokens';
 
 /**
  * @function Button
@@ -12,7 +12,7 @@ import { typo, color } from '../../styles/tokens'
 export default function Button({
   active = true,
   text,
-  width='full',         
+  width = 'full',
   dismiss = false,
   onClick,
   ...rest
@@ -29,18 +29,18 @@ export default function Button({
     >
       <div>{text}</div>
     </StyledButton>
-  )
+  );
 }
 
 /**
  * @function resolveWidth
  * 버튼의 너비를 동적으로 결정하는 함수
  */
-export const resolveWidth = (w) => {
-  if (w === undefined || w === null) return '100%';      // 기본값: 100%
-  if (w === 'full') return '100%';                       // 명시적 full 
-  if (typeof w === 'number') return `${w}px`;            // 숫자(px)
-  if (typeof w === 'string') return w;                   // '320px', '80%', 등
+export const resolveWidth = w => {
+  if (w === undefined || w === null) return '100%'; // 기본값: 100%
+  if (w === 'full') return '100%'; // 명시적 full
+  if (typeof w === 'number') return `${w}px`; // 숫자(px)
+  if (typeof w === 'string') return w; // '320px', '80%', 등
   return '100%';
 };
 
@@ -51,12 +51,9 @@ const StyledButton = styled.button`
   ${typo('button1')};
 
   /* 상태별 색상 (기본/dismiss) */
-  background-color: ${({ $dismiss }) =>
-    $dismiss ? 'white' : color('brand.primary')};
-  color: ${({ $dismiss }) =>
-    $dismiss ? color('grayscale.600') : 'white'};
-  border: ${({ $dismiss }) =>
-    $dismiss ? `1px solid #DEDEDE` : 'none'};
+  background-color: ${({ $dismiss }) => ($dismiss ? 'white' : color('brand.primary'))};
+  color: ${({ $dismiss }) => ($dismiss ? color('grayscale.600') : 'white')};
+  border: ${({ $dismiss }) => ($dismiss ? `1px solid #DEDEDE` : 'none')};
 
   /* active=false 시 시각/포인터 비활성 */
   opacity: ${({ $active }) => ($active ? 1 : 0.3)};
@@ -65,4 +62,4 @@ const StyledButton = styled.button`
 
   /* 기본 인터랙션 */
   transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.02s ease;
-`
+`;

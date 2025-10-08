@@ -15,6 +15,7 @@ export const theme = {
       primary: '#01D281',
     },
     white: '#fff',
+    black: '#000',
     transparent: 'transparent',
   },
   fonts: {
@@ -82,6 +83,12 @@ export const theme = {
       'font-family': 'Pretendard-Bold',
       'font-size': '12px',
       'line-height': '18px',
+      'font-weight': '700',
+    },
+    webh2: {
+      'font-family': 'Pretendard',
+      'font-size': '24px',
+      'line-height': '34px',
       'font-weight': '700',
     },
   },
