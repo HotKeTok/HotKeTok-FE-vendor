@@ -13,12 +13,22 @@ const TABS = [
 ];
 
 export default function MyPageTemplate({ myPageData, newsData, reviewData, tab, setTab }) {
+  const handleNewsEdit = news => {
+    console.log('Edit news:', news);
+  };
+
+  const handleNewsDelete = news => {
+    console.log('Delete news:', news);
+  };
+
   const renderContent = () => {
     switch (tab) {
       case 'home':
         return <HomeContent myPageData={myPageData} />;
       case 'news':
-        return <NewsContent newsData={newsData} />;
+        return (
+          <NewsContent newsData={newsData} onEdit={handleNewsEdit} onDelete={handleNewsDelete} />
+        );
       case 'review':
         return <ReviewContent reviewData={reviewData} />;
       default:
@@ -45,8 +55,9 @@ export default function MyPageTemplate({ myPageData, newsData, reviewData, tab, 
 
 const Wrapper = styled.div`
   width: 100%;
-  margin-top: 18px;
-  margin-bottom: 30px;
+  height: 100%;
+  padding-top: 18px;
+  padding-bottom: 30px;
 
   display: flex;
   flex-direction: column;
@@ -59,6 +70,10 @@ const Container = styled.div`
 
   border: 1px solid ${color('grayscale.300')};
   border-radius: 20px;
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Tab = styled.div`
@@ -124,4 +139,8 @@ const Content = styled.div`
   width: 100%;
 
   padding: 30px 50px;
+
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 `;
