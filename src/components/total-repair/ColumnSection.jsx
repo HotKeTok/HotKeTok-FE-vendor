@@ -4,24 +4,21 @@ import styled from 'styled-components';
 import { Row } from '../../styles/flex';
 import { color, typo } from '../../styles/tokens';
 
-/**
- * 재사용 카드 컴포넌트
- * @param {string} title - 카드 상단 타이틀
- * @param {number|string} count - 카운터(숫자/문자)
- * @param {string} accentColor - 포인트 컬러 (상단 점 + 구분 라인 동일 적용)
- * @param {React.ReactNode} children - (옵션) 카드 내부의 콘텐츠
- */
-export default function MainCard({ title, count, accentColor = '#3c66ff', children }) {
+export default function ColumnSection({ title, count, accentColor = '#3c66ff', children }) {
   return (
     <CardWrap>
-      <Row $gap={8} $align="center">
-        <Dot $accent={accentColor} />
-        <CardTitle>{title}</CardTitle>
-        <Counter>{count}</Counter>
-      </Row>
-      <ColorLine $accent={accentColor} />
-      {/* 필요 시 카드 본문 삽입 */}
-      {children}
+      {/* 상단 타이틀 영역 */}
+      <Header>
+        <Row $gap={8} $align="center">
+          <Dot $accent={accentColor} />
+          <CardTitle>{title}</CardTitle>
+          <Counter>{count}</Counter>
+        </Row>
+        <ColorLine $accent={accentColor} />
+      </Header>
+
+      {/* ✅ ScrollArea로 children 감싸기 */}
+      <ScrollArea>{children}</ScrollArea>
     </CardWrap>
   );
 }
@@ -33,6 +30,19 @@ const CardWrap = styled.div`
   border-radius: 20px;
   padding: 20px 20px 0 20px;
   margin-right: 10px;
+
+  display: flex;
+  flex-direction: column;
+`;
+
+const Header = styled.div`
+  flex-shrink: 0; /* 스크롤 시 헤더 고정 */
+`;
+
+const ScrollArea = styled.div`
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-bottom: 20px;
 `;
 
 const CardTitle = styled.div`
@@ -54,7 +64,6 @@ const Counter = styled.div`
   margin: 6px;
 `;
 
-/** 아이콘 대신 색 변경 가능한 점 */
 const Dot = styled.span`
   width: 8px;
   height: 8px;
@@ -63,7 +72,6 @@ const Dot = styled.span`
   display: inline-block;
 `;
 
-/** 색상 변경 가능한 구분선 */
 const ColorLine = styled.hr`
   width: 100%;
   height: 3px;
