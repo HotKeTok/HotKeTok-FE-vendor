@@ -172,6 +172,7 @@ const PhotoGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
+  direction: rtl;
 `;
 
 const Thumbnail = styled.img`
