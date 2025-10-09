@@ -84,6 +84,7 @@ const Container = styled.div`
   cursor: pointer;
   transition: all 0.15s ease;
   cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.05s ease;
   &:hover {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   }
