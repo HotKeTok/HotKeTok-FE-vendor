@@ -33,7 +33,7 @@ export default function Navbar() {
         </NavItem>
         <NavItem to="/total-repair" $active={isRepairActive}>
           <RepairIcon />
-          뚝딱
+          수리 모아보기
         </NavItem>
         <NavItem to="/chat" $active={isChatActive}>
           <ChatIcon />

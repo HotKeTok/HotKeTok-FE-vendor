@@ -132,7 +132,7 @@ export default function FindRepairTemplate() {
   return (
     <Container>
       <Row $gap={16} style={{ height: '100%', position: 'relative' }}>
-        {/* 좌측 상세 (Overlay가 열리면 살짝 왼쪽으로 이동) */}
+        {/* 좌측 상세 (Overlay가 열리면 살짝 줄어듬) */}
         <LeftSection $shifted={overlayOpen}>
           {selected ? (
             <RequestDetailBox>
