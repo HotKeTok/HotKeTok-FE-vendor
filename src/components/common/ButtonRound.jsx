@@ -17,7 +17,7 @@ export default function ButtonRound({
   disabled = false,
   text,
   width = 'auto',
-  height = 24,
+  height = 30,
   onClick,
 }) {
   return (
@@ -39,7 +39,7 @@ const StyledButton = styled.button`
   height: ${({ $height }) => ($height === 'full' ? '100%' : `${$height}px`)};
   padding: 0 12px;
   border-radius: 30px;
-  ${typo('button1')};
+  ${typo('button2')};
 
   background-color: ${({ $filled }) => ($filled ? color('brand.primary') : 'white')};
   border: 1.5px solid rgba(1, 210, 129, 0.3);
