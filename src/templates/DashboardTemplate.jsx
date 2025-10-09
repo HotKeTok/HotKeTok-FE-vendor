@@ -84,10 +84,7 @@ export default function DashboardTemplate({
       <RightContainer>
         <Column $gap={2}>
           <H3>
-            {isToday(selectedDate)
-              ? '오늘'
-              : format(selectedDate, 'yyyy년 MM월 dd일(E)', { locale: ko })}
-            의 일정
+            {isToday(selectedDate) ? '오늘' : format(selectedDate, 'M/d(E)', { locale: ko })}의 일정
           </H3>
           <Caption1>총 {selectedDateRepairs.length}개의 일정이 있어요.</Caption1>
         </Column>
