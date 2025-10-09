@@ -41,7 +41,7 @@ export default function ModalRepairDetail({
   } = repairData;
 
   return (
-    <Modal style={{ minWidth: '34%' }} isOpen={detailModalOpen} onClose={onClose}>
+    <Modal style={{ width: '34%' }} isOpen={detailModalOpen} onClose={onClose}>
       <Container>
         <Column $gap={24}>
           <Column $gap={4} $align="flex-start">
@@ -172,6 +172,7 @@ const PhotoGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
+  direction: rtl;
 `;
 
 const Thumbnail = styled.img`

@@ -132,7 +132,7 @@ export default function FindRepairTemplate() {
   return (
     <Container>
       <Row $gap={16} style={{ height: '100%', position: 'relative' }}>
-        {/* 좌측 상세 (Overlay가 열리면 살짝 왼쪽으로 이동) */}
+        {/* 좌측 상세 (Overlay가 열리면 살짝 줄어듬) */}
         <LeftSection $shifted={overlayOpen}>
           {selected ? (
             <RequestDetailBox>
@@ -468,9 +468,15 @@ const RequestCard = styled.div`
   border-radius: 16px;
   border: 1px solid ${({ $active }) => ($active ? color('brand.primary') : color('grayscale.200'))};
   background: ${({ $active }) => ($active ? color('white') : color('grayscale.100'))};
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease,
+    transform 0.05s ease;
   &:hover {
     border-color: ${color('brand.400')};
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  &:active {
+    transform: translateY(1px);
   }
 `;
 const IconChevronBtn = styled.button`

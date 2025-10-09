@@ -47,7 +47,6 @@ const Sidebar = styled.aside`
 // 메인 콘텐츠 영역
 const MainContent = styled.main`
   margin-top: 12.7vh; // 헤더 높이만큼 고정 마진 추가
-
   grid-area: main;
   padding: 0px 42px;
   overflow-y: auto;
