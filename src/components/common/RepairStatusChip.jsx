@@ -67,7 +67,7 @@ const Tooltip = styled.div`
   border-radius: 6px;
   ${typo('caption2')};
   white-space: nowrap;
-  z-index: 1000;
+  z-index: 20000;
 `;
 
 const TooltipArrow = styled.div`
