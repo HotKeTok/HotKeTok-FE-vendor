@@ -105,7 +105,6 @@ export default function ChatTemplate({
 }
 
 const Container = styled.div`
-  height: 90px;
   height: 100%;
 
   padding-bottom: 18px;
