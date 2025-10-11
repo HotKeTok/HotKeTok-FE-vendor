@@ -10,8 +10,19 @@ import { useState } from 'react';
 import HomeContentImageItem from './HomeContentImageItem';
 import PhotoIcn from '../../assets/common/icon-photo.svg?react';
 import ModalImageSlider from '../common/ModalImageSlider';
+import ModalProfileInfo from './ModalProfileInfo';
+import Toast from '../common/Toast';
 
 export default function HomeContent({ myPageData }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [profileData, setProfileData] = useState({
+    introduction: myPageData.introduction || '',
+    runningTime: myPageData.runningTime || {},
+    phoneNumber: myPageData.phoneNumber || '',
+    image: myPageData.introductionImage || '',
+    introductionImage: myPageData.introductionImage || [],
+  });
+
   const [showAllImages, setShowAllImages] = useState(false);
   const [selectedImageModalOpen, setSelectedImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
@@ -34,8 +45,21 @@ export default function HomeContent({ myPageData }) {
     setSelectedImageModalOpen(true);
   };
 
+  const handleMyPageInfoConfirm = updatedData => {
+    console.log('Updated MyPage Data:', updatedData);
+    setModalOpen(false);
+  };
+
   return (
     <Container>
+      <ModalProfileInfo
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        myPageData={myPageData}
+        onPatchProfileInfo={handleMyPageInfoConfirm}
+        profileData={profileData}
+        setProfileData={setProfileData}
+      />
       <ModalImageSlider
         title="증상 사진"
         isOpen={selectedImageModalOpen && selectedImageIndex !== null}
@@ -136,7 +160,7 @@ export default function HomeContent({ myPageData }) {
           )}
         </ImageGallerySection>
       )}
-      <ManageButton>프로필 관리</ManageButton>
+      <ManageButton onClick={() => setModalOpen(true)}>프로필 관리</ManageButton>
     </Container>
   );
 }

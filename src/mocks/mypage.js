@@ -5,7 +5,7 @@ export const DUMMY_MYPAGE_DATA = {
   address: '서울특별시 동작구 상도동', // 주소
   detailAddress: '세화마을', // 상세주소
   introduction: '추석 연휴동안에도 정상영업합니다..^^ 전화주셔요', // 소개
-  image: 'https://picsum.photos/100/100', // 대표 이미지
+  profileImage: 'https://picsum.photos/100/100', // 대표 이미지
   introductionImage: [
     'https://picsum.photos/200/100',
     'https://picsum.photos/900/100',
