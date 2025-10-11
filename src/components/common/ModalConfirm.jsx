@@ -78,7 +78,7 @@ const ModalTitle = styled.div`
 `;
 
 const ModalDesc = styled.div`
-  ${typo('subtitle1')}
+  ${typo('body2')}
   color: ${color('grayscale.800')};
   white-space: pre-wrap;
 `;
