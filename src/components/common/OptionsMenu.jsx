@@ -1,3 +1,4 @@
+// src/components/common/OptionsMenu.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import MenuIcn from '../../assets/common/icon-menu.svg?react';
@@ -5,23 +6,18 @@ import { color, typo } from '../../styles/tokens';
 
 /**
  * @function OptionsMenu
- * @description 메뉴 아이콘을 클릭하면 옵션 리스트가 표시되는 컴포넌트
+ * @description 메뉴 아이콘(기본: MenuIcn, 또는 props.icon으로 받은 이미지)을 클릭하면 옵션 리스트 표시
  *
- * @param {object[]} options - 메뉴에 표시될 옵션 배열
- * @param {string} options[].label - 옵션의 텍스트
- * @param {function} options[].onClick - 옵션을 클릭했을 때 실행될 함수
- *
- * @example
- * const menuOptions = [
- * { label: '신고하기', onClick: () => console.log('Report') },
- * { label: '수정하기', onClick: () => console.log('Edit') },
- * ];
- *
- * <OptionsMenu options={menuOptions} />
+ * @param {object[]} options - 옵션 배열 [{ label, onClick }]
+ * @param {string} [icon] - 대체 아이콘 이미지 경로(src). 전달 안하면 기본 MenuIcn 사용.
+ * @param {number} [iconSize=16.5] - 아이콘 렌더링 크기(px)
  */
-export default function OptionsMenu({ options = [] }) {
+export default function OptionsMenu({ options = [], icon, iconSize }) {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef(null);
+
+  // ✅ 기본 크기 설정 (props 없을 경우 16.5)
+  const finalSize = iconSize ?? 16.5;
 
   // 외부 클릭 시 메뉴 닫기
   useEffect(() => {
@@ -31,24 +27,24 @@ export default function OptionsMenu({ options = [] }) {
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [wrapperRef]);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const handleMenuClick = () => {
-    setIsOpen(prev => !prev);
-  };
+  const handleMenuClick = () => setIsOpen(prev => !prev);
 
   const handleItemClick = onClick => {
-    onClick();
+    onClick?.();
     setIsOpen(false);
   };
 
   return (
     <Wrapper ref={wrapperRef}>
-      <IconWrapper onClick={handleMenuClick}>
-        <MenuIcn width={16.5} height={16.5} />
+      <IconWrapper onClick={handleMenuClick} aria-label="옵션 메뉴 열기" role="button">
+        {icon ? (
+          <IconImg src={icon} alt="menu" $size={finalSize} />
+        ) : (
+          <MenuIcn width={finalSize} height={finalSize} />
+        )}
       </IconWrapper>
 
       {isOpen && (
@@ -64,10 +60,12 @@ export default function OptionsMenu({ options = [] }) {
   );
 }
 
+/* ================================
+ * Styled-components
+ * ================================ */
+
 const Wrapper = styled.div`
   position: relative;
-  display: inline-block;
-
   display: inline-flex;
   align-items: center;
 `;
@@ -77,6 +75,11 @@ const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const IconImg = styled.img`
+  width: ${({ $size }) => `${$size}px`};
+  height: ${({ $size }) => `${$size}px`};
 `;
 
 const MenuContainer = styled.div`
