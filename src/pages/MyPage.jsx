@@ -31,6 +31,19 @@ export default function MyPage() {
     fetchData();
   }, [tab]);
 
+  const handlePatchProfileInfo = updatedInfo => {
+    // todo: api 호출
+  };
+
+  const handleNewsDelete = newsId => {
+    // todo: api 호출
+    setNewsData(prevNewsData => prevNewsData.filter(news => news.id !== newsId));
+  };
+
+  const handleNewsEdit = newsId => {
+    // todo: api 호출
+  };
+
   return (
     <MyPageTemplate
       myPageData={myPageData}
@@ -38,6 +51,9 @@ export default function MyPage() {
       reviewData={reviewData}
       tab={tab}
       setTab={setTab}
+      onPatchProfileInfo={handlePatchProfileInfo}
+      onNewsDelete={handleNewsDelete}
+      onNewsEdit={handleNewsEdit}
     />
   );
 }

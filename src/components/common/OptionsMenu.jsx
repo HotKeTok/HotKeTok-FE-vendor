@@ -48,7 +48,7 @@ export default function OptionsMenu({ options = [] }) {
   return (
     <Wrapper ref={wrapperRef}>
       <IconWrapper onClick={handleMenuClick}>
-        <MenuIcn width={16.5} height={16.5} />
+        <MenuIcn width={11.5} height={11.5} />
       </IconWrapper>
 
       {isOpen && (
@@ -86,22 +86,26 @@ const MenuContainer = styled.div`
   background-color: ${color('grayscale.100')};
   border-radius: 10px;
   box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  z-index: 100;
   overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+
+  padding: 10px;
 `;
 
 const MenuItem = styled.div`
-  padding: 16px 22px;
+  padding: 12px 24px;
   cursor: pointer;
   white-space: nowrap;
   ${typo('body2')};
   color: ${color('grayscale.800')};
+  border-radius: 10px;
 
   &:hover {
     background-color: ${color('grayscale.200')};
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid ${color('grayscale.300')};
   }
 `;

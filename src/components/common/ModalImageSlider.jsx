@@ -96,8 +96,10 @@ const GalleryWrapper = styled.div`
 const LargeImage = styled.img`
   flex: 1;
 
-  max-width: 100%;
-  max-height: 100%;
+  width: 372px;
+  height: 372px;
+  object-fit: contain;
+
   border-radius: 8px;
   user-select: none; /* 드래그 방지 */
 `;

@@ -71,7 +71,7 @@ const NavItem = styled(Link)`
   align-items: center;
   gap: 13px;
   text-decoration: none;
-  ${typo('subtitle1')}
+  ${typo('button2')}
 
   width: 100%;
   padding: 16px;
@@ -82,8 +82,8 @@ const NavItem = styled(Link)`
   color: ${({ $active }) => ($active ? color('brand.primary') : color('grayscale.600'))};
 
   svg {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     path {
       stroke: ${({ $active }) => ($active ? color('brand.primary') : color('grayscale.600'))};
     }
