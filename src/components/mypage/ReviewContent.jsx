@@ -6,8 +6,8 @@ import OptionsMenu from '../common/OptionsMenu';
 import ModalImageSlider from '../common/ModalImageSlider';
 
 import iconChevron from '../../assets/common/icon-sort-chevron.svg';
-import iconStarYellow from '../../assets/my/icon-star-yellow.svg';
-import iconStarGray from '../../assets/my/icon-star-gray.svg';
+import iconStarYellow from '../../assets/mypage/icon-star-yellow.svg';
+import iconStarGray from '../../assets/mypage/icon-star-gray.svg';
 
 export default function ReviewContent({ reviewData }) {
   const safeReviews = Array.isArray(reviewData) ? reviewData : [];
