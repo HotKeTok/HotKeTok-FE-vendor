@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 import { typo, color } from '../styles/tokens';
-import VendorProfile from '../components/mypage/VendorProfile';
 
+import VendorProfile from '../components/mypage/VendorProfile';
 import HomeContent from '../components/mypage/HomeContent';
 import NewsContent from '../components/mypage/NewsContent';
 import ReviewContent from '../components/mypage/ReviewContent';
@@ -34,7 +34,7 @@ export default function MyPageTemplate({
       case 'news':
         return <NewsContent newsData={newsData} onEdit={onNewsEdit} onDelete={handleNewsDelete} />;
       case 'review':
-        return <ReviewContent reviewData={reviewData} />;
+        return <ReviewContent reviewData={reviewData} />; // ✅ 항상 배열 전달
       default:
         return null;
     }
@@ -71,7 +71,6 @@ const Wrapper = styled.div`
 
 const Container = styled.div`
   width: 53.7%;
-
   border: 1px solid ${color('grayscale.300')};
   border-radius: 20px;
 
@@ -115,21 +114,19 @@ const TabItem = styled.div`
           color: ${color('grayscale.600')};
         `}
 
-  // 가상 요소
   &::after {
     content: '';
     position: absolute;
     left: 0;
-    bottom: -1px; /* border 위에 위치하도록 조정 */
+    bottom: -1px;
     width: 100%;
     height: 2px;
     background-color: black;
-    transform: scaleX(0); /* 처음에는 보이지 않게 처리 */
-    transform-origin: center; /* 중앙에서부터 나타나는 효과 */
+    transform: scaleX(0);
+    transform-origin: center;
     transition: transform 0.3s ease-in-out;
   }
 
-  /* 활성 상태일 때 밑줄이 나타나도록 설정 */
   ${props =>
     props.$active &&
     css`
@@ -141,7 +138,6 @@ const TabItem = styled.div`
 
 const Content = styled.div`
   width: 100%;
-
   padding: 30px 50px;
 
   flex: 1;
