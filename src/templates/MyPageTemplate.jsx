@@ -13,28 +13,26 @@ const TABS = [
 ];
 
 export default function MyPageTemplate({
-  myPageData = {},
-  newsData = [],
-  reviewData = [], // ✅ 기본값 보장
+  myPageData,
+  newsData,
+  reviewData,
   tab,
   setTab,
+  onPatchProfileInfo,
+  onNewsEdit,
+  onNewsDelete,
 }) {
-  const handleNewsEdit = news => {
-    console.log('Edit news:', news);
-  };
-
   const handleNewsDelete = news => {
-    console.log('Delete news:', news);
+    // 확인 팝업 추가
+    onNewsDelete(news);
   };
 
   const renderContent = () => {
     switch (tab) {
       case 'home':
-        return <HomeContent myPageData={myPageData} />;
+        return <HomeContent myPageData={myPageData} onPatchProfileInfo={onPatchProfileInfo} />;
       case 'news':
-        return (
-          <NewsContent newsData={newsData} onEdit={handleNewsEdit} onDelete={handleNewsDelete} />
-        );
+        return <NewsContent newsData={newsData} onEdit={onNewsEdit} onDelete={handleNewsDelete} />;
       case 'review':
         return <ReviewContent reviewData={reviewData} />; // ✅ 항상 배열 전달
       default:

@@ -174,7 +174,7 @@ const DateCell = styled.div`
     color: ${({ $isToday }) => ($isToday ? color('brand.primary') : 'black')};
   }
 
-  overflow: scroll;
+  overflow: hidden;
 `;
 
 const DataContainer = styled.div`

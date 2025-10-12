@@ -4,11 +4,11 @@ import { Row } from '../../styles/flex';
 import StarIcn from '../../assets/common/icon-star.svg?react';
 
 export default function VendorProfile({ myPageData }) {
-  const { name, category, image, rate, reviewCount } = myPageData;
+  const { name, category, profileImage, rate, reviewCount } = myPageData;
 
   return (
     <Container>
-      <ProfileImg src={image} alt="프로필 이미지" />
+      <ProfileImg src={profileImage} alt="프로필 이미지" />
       <div>
         <Row $gap={8} $align="center">
           <Title>{name}</Title>

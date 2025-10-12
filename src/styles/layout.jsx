@@ -31,13 +31,15 @@ const Header = styled.header`
   padding: 28px 40px;
 
   z-index: 100;
+
+  background: transparent;
 `;
 
 const Sidebar = styled.aside`
   grid-area: sidebar;
   background-color: #fff;
   border-radius: 0px 30px 30px 0px;
-  box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.05);
+  box-shadow: 5px 0px 30px 0px rgba(0, 0, 0, 0.05);
   padding: 40px 20px 0px 20px;
   display: flex;
   flex-direction: column;
@@ -50,6 +52,7 @@ const MainContent = styled.main`
   grid-area: main;
   padding: 0px 42px;
   overflow-y: auto;
+  background-color: transparent;
 `;
 
 /* ========== Overlay 전체 화면 덮기 (사이드바 제외) ========== */
@@ -97,13 +100,13 @@ export const Layout = ({ bgColor, children }) => {
   return (
     <OverlayContext.Provider value={ctxValue}>
       <AppContainer style={{ backgroundColor: bgColor }}>
-        <Header style={{ backgroundColor: bgColor }}>
+        <Header>
           <Topbar />
         </Header>
         <Sidebar>
           <NavBar />
         </Sidebar>
-        <MainContent style={{ backgroundColor: bgColor }}>{children}</MainContent>
+        <MainContent>{children}</MainContent>
 
         {/* 🔹 오버레이 (헤더 포함 전체 덮기) */}
         {overlayContent ? <OverlayRoot>{overlayContent}</OverlayRoot> : null}
