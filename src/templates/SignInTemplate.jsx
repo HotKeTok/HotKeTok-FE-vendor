@@ -6,11 +6,8 @@ import imgBackground from '../assets/common/img-background.png';
 import { Column, Row } from '../styles/flex';
 
 import TextField from '../components/common/TextField';
-
 import Button from '../components/common/Button';
-
-import iconLogo from '../assets/common/icon-service-logo-name.svg';
-import iconHashtag from '../assets/common/icon-service-hashtag.svg';
+import LeftSection from '../components/onbording/LeftSection';
 
 export default function SignInTemplate() {
   const [userId, setUserId] = useState('');
@@ -21,19 +18,10 @@ export default function SignInTemplate() {
   return (
     <BackgroundContainer background={imgBackground}>
       <Content>
-        <LeftSection>
-          <IconLogo src={iconLogo} />
-          <WelcomeText>
-            환영합니다!
-            <br />
-            계정에 로그인 해주세요.
-          </WelcomeText>
-          <H2Text>
-            우리 동네 수리 요청, <br />
-            핫케톡에서 바로 만나보세요.
-          </H2Text>
-          <IconHashtag src={iconHashtag} />
-        </LeftSection>
+        <LeftSection
+          maintext={'환영합니다! \n 계정에 로그인 해주세요.'}
+          subtext={'우리 동네 수리 요청, \n 힛케톡에서 바로 만나보세요.'}
+        />
         <RightSection>
           <LoginText>로그인</LoginText>
           <Column $gap={14}>
@@ -89,11 +77,6 @@ const Content = styled.div`
   left: 15%;
   bottom: 20%;
   right: 12%;
-`;
-
-const LeftSection = styled.div`
-  display: flex;
-  flex-direction: column;
 `;
 
 const IconLogo = styled.img`
