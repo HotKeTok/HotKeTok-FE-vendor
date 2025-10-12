@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { color, typo } from '../styles/tokens';
 import imgBackground from '../assets/common/img-background.png';
-import { Column, Row } from '../styles/flex';
+import { Column } from '../styles/flex';
 
 import TextField from '../components/common/TextField';
 import Button from '../components/common/Button';
@@ -78,25 +78,6 @@ const Content = styled.div`
   bottom: 20%;
   right: 12%;
 `;
-
-const IconLogo = styled.img`
-  width: 160px;
-`;
-
-const WelcomeText = styled.div`
-  ${typo('webh1')};
-  color: ${color('white')};
-  margin-top: 90px;
-  margin-bottom: 40px;
-`;
-
-const H2Text = styled.div`
-  ${typo('h2')};
-  color: ${color('white')};
-  margin-bottom: 40px;
-`;
-
-const IconHashtag = styled.img``;
 
 const RightSection = styled.div`
   display: flex;
