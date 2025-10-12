@@ -1,13 +1,70 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { color, typo } from '../styles/tokens';
 import imgBackground from '../assets/common/img-background.png';
+import { Column, Row } from '../styles/flex';
+
+import TextField from '../components/common/TextField';
+
+import Button from '../components/common/Button';
+
+import iconLogo from '../assets/common/icon-service-logo-name.svg';
+import iconHashtag from '../assets/common/icon-service-hashtag.svg';
 
 export default function SignInTemplate() {
+  const [userId, setUserId] = useState('');
+  const [password, setPassword] = useState('');
+
+  const nav = useNavigate();
+
   return (
     <BackgroundContainer background={imgBackground}>
       <Content>
-        <h1>안녕하세요</h1>
-        <p>이건 배경 이미지 위에 놓인 텍스트입니다.</p>
+        <LeftSection>
+          <IconLogo src={iconLogo} />
+          <WelcomeText>
+            환영합니다!
+            <br />
+            계정에 로그인 해주세요.
+          </WelcomeText>
+          <H2Text>
+            우리 동네 수리 요청, <br />
+            핫케톡에서 바로 만나보세요.
+          </H2Text>
+          <IconHashtag src={iconHashtag} />
+        </LeftSection>
+        <RightSection>
+          <LoginText>로그인</LoginText>
+          <Column $gap={14}>
+            <Column>
+              <Label>아이디</Label>
+              <TextField
+                placeholder={'아이디를 입력해주세요.'}
+                onChange={e => setUserId(e.target.value)}
+              />
+            </Column>
+            <Column>
+              <Label>비밀번호</Label>
+              <TextField
+                placeholder={'비밀번호를 입력해주세요.'}
+                onChange={e => setPassword(e.target.value)}
+              />
+            </Column>
+          </Column>
+          <Column $gap={20}>
+            <Button text={'로그인'} active={userId && password ? true : false} />
+            <SignUpButtonWrapper>
+              <SignUpButton
+                onClick={() => {
+                  nav('/sign-up');
+                }}
+              >
+                회원가입
+              </SignUpButton>
+            </SignUpButtonWrapper>
+          </Column>
+        </RightSection>
       </Content>
     </BackgroundContainer>
   );
@@ -25,8 +82,71 @@ const BackgroundContainer = styled.div`
 
 // 오버레이 콘텐츠
 const Content = styled.div`
-  top: 30%;
-  left: 10%;
-  color: white;
-  font-size: 2rem;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 20%;
+  left: 15%;
+  bottom: 20%;
+  right: 12%;
+`;
+
+const LeftSection = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const IconLogo = styled.img`
+  width: 160px;
+`;
+
+const WelcomeText = styled.div`
+  ${typo('webh1')};
+  color: ${color('white')};
+  margin-top: 90px;
+  margin-bottom: 40px;
+`;
+
+const H2Text = styled.div`
+  ${typo('h2')};
+  color: ${color('white')};
+  margin-bottom: 40px;
+`;
+
+const IconHashtag = styled.img``;
+
+const RightSection = styled.div`
+  display: flex;
+  width: 500px;
+  padding: 72px 79px;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 20px;
+  background: #fff;
+`;
+
+const LoginText = styled.div`
+  ${typo('h2')};
+  color: ${color('black')};
+`;
+
+const Label = styled.div`
+  ${typo('caption1')};
+  color: ${color('grayscale.600')};
+  margin-bottom: 4px;
+`;
+
+const SignUpButtonWrapper = styled.div`
+  display: flex;
+  justify-content: cetner;
+  align-self: center;
+`;
+
+const SignUpButton = styled.div`
+  cursor: pointer;
+  ${typo('button2')};
+  color: ${color('grayscale.600')};
+  width: 100px;
+  padding: 10px 20px;
+  gap: 10px;
 `;
