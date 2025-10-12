@@ -107,13 +107,10 @@ export default function ModalProfileInfo({
                 <Label>영업 시간</Label>
               </LabelRow>
 
-              <ToggleContainer>
+              <ToggleContainer onClick={() => setIsTimeEditorOpen(prev => !prev)}>
                 <Row $justify="space-between" style={{ width: '100%' }}>
                   <Label style={{ color: '#a8a8a8' }}>영업 시간을 입력해주세요</Label>
-                  <IcnContainer
-                    $isOpened={isTimeEditorOpen}
-                    onClick={() => setIsTimeEditorOpen(prev => !prev)}
-                  >
+                  <IcnContainer $isOpened={isTimeEditorOpen}>
                     <ToggleIcn />
                   </IcnContainer>
                 </Row>
@@ -252,12 +249,13 @@ const LabelRow = styled(Row)`
 
 const ToggleContainer = styled.div`
   width: 100%;
+  padding: 13px 15px;
 
   background-color: ${color('grayscale.100')};
   border-radius: 10px;
   border: 1px solid ${color('grayscale.300')};
 
-  padding: 13px 15px;
+  cursor: pointer;
 `;
 
 const IcnContainer = styled.div`
@@ -265,7 +263,6 @@ const IcnContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 
   ${props =>
     props.$isOpened &&
