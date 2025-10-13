@@ -12,8 +12,9 @@ import PhotoIcn from '../../assets/common/icon-photo.svg?react';
 import ModalImageSlider from '../common/ModalImageSlider';
 import ModalProfileInfo from './ModalProfileInfo';
 import Toast from '../common/Toast';
+import { daysOfWeek } from '../../constants/Date';
 
-export default function HomeContent({ myPageData }) {
+export default function HomeContent({ myPageData, onPatchProfileInfo }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [profileData, setProfileData] = useState({
     introduction: myPageData.introduction || '',
@@ -46,9 +47,13 @@ export default function HomeContent({ myPageData }) {
   };
 
   const handleMyPageInfoConfirm = updatedData => {
-    console.log('Updated MyPage Data:', updatedData);
     setModalOpen(false);
+    onPatchProfileInfo(updatedData);
   };
+
+  const notWorkingDays = daysOfWeek.filter(
+    day => !profileData.runningTime.working_day_of_week.includes(day)
+  );
 
   return (
     <Container>
@@ -73,32 +78,61 @@ export default function HomeContent({ myPageData }) {
       </Introduction>
       <Column $gap={12}>
         <HomeContentRow
-          isEmpty={'임시'}
+          isEmpty={false} // 영업시간은 항상 값이 있음
           icon={TimeIcn}
           label="영업 시간"
-          value={myPageData.runningTime || '정보 없음'}
+          values={[
+            {
+              id: 1,
+              value: `${myPageData.runningTime.openingTime} ~ ${myPageData.runningTime.closingTime}`,
+              color: color('grayscale.800'),
+            },
+            {
+              id: 2,
+              value: `${
+                notWorkingDays.length === 0 ? '휴무 없음' : `${notWorkingDays.join(', ')} 휴무`
+              }`,
+              color: '#FF3F3F',
+            },
+          ]}
         />
         <HomeContentRow
           isEmpty={!myPageData.phoneNumber}
           icon={PhoneIcn}
           label="전화번호"
-          value={myPageData.phoneNumber || '정보 없음'}
+          values={[
+            {
+              id: 1,
+              value: myPageData.phoneNumber || '정보 없음',
+              color: color('grayscale.800'),
+            },
+          ]}
         />
         <HomeContentRow
           isEmpty={!myPageData.category}
           icon={LocationIcn}
           label="카테고리"
-          value={myPageData.category || '정보 없음'}
+          values={[
+            {
+              id: 1,
+              value: myPageData.category || '정보 없음',
+              color: color('grayscale.800'),
+            },
+          ]}
         />
         <HomeContentRow
           isEmpty={!myPageData.address}
           icon={BookmarkIcn}
           label="주소"
-          value={
-            myPageData.address
-              ? `${myPageData.address} ${myPageData.detailAddress || ''}`.trim()
-              : '정보 없음'
-          }
+          values={[
+            {
+              id: 1,
+              value: myPageData.address
+                ? `${myPageData.address} ${myPageData.detailAddress || ''}`.trim()
+                : '정보 없음',
+              color: color('grayscale.800'),
+            },
+          ]}
         />
       </Column>
 

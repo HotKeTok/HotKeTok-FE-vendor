@@ -11,16 +11,19 @@ import EditIcn from '../../assets/common/icon-edit-pencil.svg?react';
 import ProfileDefaultIcn from '../../assets/common/icon-profile-default.svg?react';
 import ArrowDownIcn from '../../assets/common/icon-arrow-down.svg?react';
 import { formatPhone } from '../../utils/format';
+import { daysOfWeek } from '../../constants/Date';
 
 export default function ModalProfileInfo({
   isOpen,
   onClose,
   myPageData,
   onPatchProfileInfo,
-  profileData,
-  setProfileData,
+  profileData, // 편집 데이터
+  setProfileData, // 편집 데이터 설정 함수
 }) {
   const { introduction, phoneNumber, runningTime, introductionImage } = profileData;
+  const { openingTime, closingTime, working_day_of_week } = runningTime;
+  const [initialData, setInitialData] = useState(profileData);
   const [isTimeEditorOpen, setIsTimeEditorOpen] = useState(false);
 
   const handlePhoneChange = e => {
@@ -28,20 +31,19 @@ export default function ModalProfileInfo({
     setProfileData({ ...profileData, phoneNumber: formattedValue });
   };
 
-  const [initialData, setInitialData] = useState(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      setInitialData(profileData);
-    }
-  }, [isOpen]);
+  const handleModalClose = () => {
+    setIsTimeEditorOpen(false);
+    setProfileData(initialData); // rollback
+    onClose();
+  };
 
   const isDirty = JSON.stringify(initialData) !== JSON.stringify(profileData);
+  const notWorkingDays = daysOfWeek.filter(day => !working_day_of_week.includes(day));
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleModalClose}
       style={{ width: '42%', maxHeight: '90%', overflow: 'scroll' }}
     >
       <Container $gap={6} $align="flex-start">
@@ -107,9 +109,23 @@ export default function ModalProfileInfo({
                 <Label>영업 시간</Label>
               </LabelRow>
 
-              <ToggleContainer onClick={() => setIsTimeEditorOpen(prev => !prev)}>
-                <Row $justify="space-between" style={{ width: '100%' }}>
-                  <Label style={{ color: '#a8a8a8' }}>영업 시간을 입력해주세요</Label>
+              <ToggleContainer>
+                <Row
+                  $justify="space-between"
+                  style={{ width: '100%', cursor: 'pointer' }}
+                  onClick={() => setIsTimeEditorOpen(prev => !prev)}
+                >
+                  {!isTimeEditorOpen ? (
+                    <Label style={{ opacity: isDirty ? 1 : 0.5 }}>
+                      {openingTime} ~ {closingTime}{' '}
+                      <ClosingDays>
+                        ({working_day_of_week.length === 7 ? '매일' : notWorkingDays.join(', ')}{' '}
+                        휴무)
+                      </ClosingDays>
+                    </Label>
+                  ) : (
+                    <Label style={{ color: '#a8a8a8' }}>영업 시간을 입력해주세요</Label>
+                  )}
                   <IcnContainer $isOpened={isTimeEditorOpen}>
                     <ToggleIcn />
                   </IcnContainer>
@@ -118,7 +134,8 @@ export default function ModalProfileInfo({
                   <HomeTimeEditor
                     runningTime={runningTime}
                     setProfileData={setProfileData}
-                    profileData={profileData}
+                    profileData={profileData} // 편집 데이터
+                    initialData={initialData.runningTime} // 초기 데이터
                   />
                 )}
               </ToggleContainer>
@@ -137,7 +154,7 @@ export default function ModalProfileInfo({
         </Column>
       </Container>
       <BtnContainer>
-        <Button text="취소하기" width={136} dismiss onClick={onClose} />
+        <Button text="취소하기" width={136} dismiss onClick={handleModalClose} />
         <Button
           text="저장하기"
           active={isDirty}
@@ -231,6 +248,13 @@ const Caption = styled.div`
 const Label = styled.label`
   ${typo('body2')};
   color: ${color('grayscale.600')};
+
+  cursor: pointer;
+`;
+
+const ClosingDays = styled.span`
+  ${typo('body2')};
+  color: #ff3f3f;
 `;
 
 const TextLength = styled.div`
@@ -254,8 +278,6 @@ const ToggleContainer = styled.div`
   background-color: ${color('grayscale.100')};
   border-radius: 10px;
   border: 1px solid ${color('grayscale.300')};
-
-  cursor: pointer;
 `;
 
 const IcnContainer = styled.div`

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { typo, color } from '../../styles/tokens';
 import ArrowRightIcn from '../../assets/common/icon-arrow-right.svg?react';
 
-export default function HomeContentRow({ isEmpty, icon: Icon, label, value }) {
+export default function HomeContentRow({ isEmpty, icon: Icon, label, values }) {
   return (
     <Row>
       <IconWrapper>
@@ -14,7 +14,11 @@ export default function HomeContentRow({ isEmpty, icon: Icon, label, value }) {
           <StyledArrowRightIcn />
         </Row>
       ) : (
-        <Value>{value}</Value>
+        values.map(v => (
+          <Value key={v.id} style={{ color: v.color }}>
+            {v.value}
+          </Value>
+        ))
       )}
     </Row>
   );

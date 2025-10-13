@@ -1,94 +1,83 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Column, Row } from '../../styles/flex';
 import { typo, color } from '../../styles/tokens';
-import Switch from '../common/Switch';
+import { daysOfWeek } from '../../constants/Date';
 
-export default function HomeTimeEditor({ runningTime, setProfileData, profileData }) {
-  const handleToggle = (dayId, isOpen) => {
-    const updatedRunningTime = runningTime.map(day =>
-      day.id === dayId
-        ? {
-            ...day,
-            isOpen,
-            startTime: isOpen ? '09:00' : null,
-            endTime: isOpen ? '18:00' : null,
-          }
-        : day
-    );
+export default function HomeTimeEditor({ runningTime, setProfileData, profileData, initialData }) {
+  const handleTimeChange = (e, timeType, value) => {
+    const updatedRunningTime = {
+      ...runningTime,
+      [timeType]: value,
+    };
     setProfileData({ ...profileData, runningTime: updatedRunningTime });
   };
 
-  const handleTimeChange = (dayId, timeType, value) => {
-    const updatedRunningTime = runningTime.map(day =>
-      day.id === dayId ? { ...day, [timeType]: value } : day
-    );
+  const handleDayToggle = (e, day) => {
+    const { working_day_of_week } = profileData.runningTime;
+    let updatedDays;
+    if (working_day_of_week.includes(day)) {
+      updatedDays = working_day_of_week.filter(d => d !== day);
+    } else {
+      updatedDays = [...working_day_of_week, day];
+    }
+    const updatedRunningTime = {
+      ...runningTime,
+      working_day_of_week: updatedDays,
+    };
     setProfileData({ ...profileData, runningTime: updatedRunningTime });
   };
+
+  const { openingTime, closingTime, working_day_of_week } = profileData.runningTime;
 
   return (
     <TimeEditorContainer>
-      {runningTime.map(day => (
-        <Row key={day.id} $justify="flex-start" $align="center" style={{ width: '100%' }}>
-          <DayLabel>{day.dayName}</DayLabel>
-          <Row $justify="space-between" style={{ width: '100%' }}>
-            <Row $gap={8} $align="center">
-              <Switch checked={day.isOpen} onChange={e => handleToggle(day.id, e.target.checked)} />
-              <StatusText $isOpen={day.isOpen}>{day.isOpen ? 'Open' : 'Closed'}</StatusText>
-            </Row>
-            <TimeInputContainer>
-              {day.isOpen ? (
-                <>
-                  <TimeInput
-                    type="text"
-                    placeholder="09:00"
-                    maxLength="5"
-                    value={day.startTime || ''}
-                    onChange={e => handleTimeChange(day.id, 'startTime', e.target.value)}
-                    $isDefault={day.startTime === '09:00'}
-                  />
-                  <span>~</span>
-                  <TimeInput
-                    type="text"
-                    placeholder="18:00"
-                    maxLength="5"
-                    value={day.endTime || ''}
-                    onChange={e => handleTimeChange(day.id, 'endTime', e.target.value)}
-                    $isDefault={day.endTime === '18:00'}
-                  />
-                </>
-              ) : (
-                <div style={{ width: '138px' }} />
-              )}
-            </TimeInputContainer>
-          </Row>
+      <Row $justify="flex-start" align="center" $gap={10} style={{ width: '100%' }}>
+        <TimeInput
+          type="text"
+          placeholder="09:00"
+          maxLength="5"
+          value={openingTime || ''}
+          onChange={e => handleTimeChange(e, 'openingTime', e.target.value)}
+          $isDefault={openingTime == initialData.openingTime}
+        />
+        <Row $justify="center" $align="center">
+          ~
         </Row>
-      ))}
+        <TimeInput
+          type="text"
+          placeholder="18:00"
+          maxLength="5"
+          value={closingTime || ''}
+          onChange={e => handleTimeChange(e, 'closingTime', e.target.value)}
+          $isDefault={closingTime == initialData.closingTime}
+        />
+      </Row>
+      <Column $gap={14} $justify="flex-start" $align="flex-start" style={{ width: '100%' }}>
+        <Label>영업 요일을 선택해주세요</Label>
+        <DayGrid>
+          {daysOfWeek.map((day, index) => {
+            const isOpen = working_day_of_week.includes(day);
+            return (
+              <DayButton
+                key={index}
+                type="button"
+                $isOpen={isOpen}
+                onClick={e => handleDayToggle(e, day)}
+              >
+                {day}
+              </DayButton>
+            );
+          })}
+        </DayGrid>
+      </Column>
     </TimeEditorContainer>
   );
 }
 
 const TimeEditorContainer = styled(Column)`
   width: 100%;
-  padding-top: 16px;
-  gap: 16px;
-`;
-
-const DayLabel = styled.span`
-  ${typo('body2')};
-  color: ${color('grayscale.800')};
-  margin-right: 60px;
-`;
-
-const StatusText = styled.span`
-  ${typo('body2')};
-  color: ${props => (props.$isOpen ? color('grayscale.600') : color('grayscale.500'))};
-  width: 40px;
-`;
-
-const TimeInputContainer = styled(Row)`
-  gap: 4px;
-  align-items: center;
-  ${typo('body2')}
+  padding-top: 8px;
+  gap: 30px;
 `;
 
 const TimeInput = styled.input`
@@ -104,4 +93,43 @@ const TimeInput = styled.input`
     outline: none;
     border-color: ${color('brand.primary')};
   }
+`;
+
+const Label = styled.label`
+  ${typo('body2')};
+  color: ${color('grayscale.400')};
+`;
+
+const DayGrid = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+`;
+
+const DayButton = styled.button`
+  width: 100%;
+  padding-top: 6px;
+  padding-bottom: 6px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ${typo('button2')}
+
+  border: 1px solid transparent;
+  border-radius: 6px;
+
+  ${props =>
+    props.$isOpen
+      ? css`
+          background-color: ${color('brand.primary')};
+          color: white;
+        `
+      : css`
+          background-color: white;
+          color: ${color('brand.primary')};
+          border-color: ${color('brand.primary')};
+        `};
 `;
