@@ -3,17 +3,22 @@ import { Column, Row } from '../../styles/flex';
 import { typo, color } from '../../styles/tokens';
 import { daysOfWeek } from '../../constants/Date';
 
-export default function HomeTimeEditor({ runningTime, setProfileData, profileData, initialData }) {
+export default function HomeTimeEditor({
+  runningTime,
+  setProfileEditData,
+  profileEditData,
+  initialData,
+}) {
   const handleTimeChange = (e, timeType, value) => {
     const updatedRunningTime = {
       ...runningTime,
       [timeType]: value,
     };
-    setProfileData({ ...profileData, runningTime: updatedRunningTime });
+    setProfileEditData({ ...profileEditData, runningTime: updatedRunningTime });
   };
 
   const handleDayToggle = (e, day) => {
-    const { working_day_of_week } = profileData.runningTime;
+    const { working_day_of_week } = profileEditData.runningTime;
     let updatedDays;
     if (working_day_of_week.includes(day)) {
       updatedDays = working_day_of_week.filter(d => d !== day);
@@ -24,10 +29,10 @@ export default function HomeTimeEditor({ runningTime, setProfileData, profileDat
       ...runningTime,
       working_day_of_week: updatedDays,
     };
-    setProfileData({ ...profileData, runningTime: updatedRunningTime });
+    setProfileEditData({ ...profileEditData, runningTime: updatedRunningTime });
   };
 
-  const { openingTime, closingTime, working_day_of_week } = profileData.runningTime;
+  const { openingTime, closingTime, working_day_of_week } = profileEditData.runningTime;
 
   return (
     <TimeEditorContainer>

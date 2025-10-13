@@ -37,6 +37,7 @@ export default function MyPage() {
   const handlePatchProfileInfo = updatedInfo => {
     // todo: api 호출
     setToast('프로필이 수정되었어요.');
+    setMyPageData(prevData => ({ ...prevData, ...updatedInfo }));
   };
 
   const handleNewsDelete = newsId => {

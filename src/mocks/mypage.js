@@ -22,9 +22,11 @@ export const DUMMY_MYPAGE_DATA = {
   reviewCount: 20,
   phoneNumber: '010-1234-5678', // 전화번호
   runningTime: {
-    openingTime: '09:00',
-    closingTime: '18:00',
-    working_day_of_week: ['월', '화', '수', '목', '금', '토', '일'],
+    // openingTime: '09:00',
+    openingTime: null,
+    // closingTime: '18:00',
+    closingTime: null,
+    working_day_of_week: ['월', '화', '수', '목', '금', '토', '일'], // 초깃값 null일 때 모두 영업
   },
 };
 
