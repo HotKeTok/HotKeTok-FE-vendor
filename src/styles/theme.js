@@ -85,6 +85,12 @@ export const theme = {
       'line-height': '18px',
       'font-weight': '700',
     },
+    webh1: {
+      'font-family': 'Pretendard',
+      'font-size': '40px',
+      'line-height': '56px',
+      'font-weight': '700',
+    },
     webh2: {
       'font-family': 'Pretendard',
       'font-size': '24px',

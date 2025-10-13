@@ -5,7 +5,7 @@ import { Column, Row } from '../../styles/flex';
 import OptionsMenu from '../common/OptionsMenu';
 import ModalImageSlider from '../common/ModalImageSlider';
 
-import iconChevron from '../../assets/common/icon-sort-chevron.svg';
+import iconChevron from '../../assets/common/icon-arrow-down.svg';
 import iconStarYellow from '../../assets/mypage/icon-star-yellow.svg';
 import iconStarGray from '../../assets/mypage/icon-star-gray.svg';
 
