@@ -6,22 +6,23 @@ import LocationIcn from '../../assets/mypage/icon-location.svg?react';
 import { typo, color } from '../../styles/tokens';
 import { Column } from '../../styles/flex';
 import HomeContentRow from './HomeContentRow';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import HomeContentImageItem from './HomeContentImageItem';
 import PhotoIcn from '../../assets/common/icon-photo.svg?react';
 import ModalImageSlider from '../common/ModalImageSlider';
 import ModalProfileInfo from './ModalProfileInfo';
 import Toast from '../common/Toast';
+import { daysOfWeek } from '../../constants/Date';
 
-export default function HomeContent({ myPageData }) {
+export default function HomeContent({ myPageData, onPatchProfileInfo }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [profileData, setProfileData] = useState({
+  const [profileEditData, setProfileEditData] = useState({
     introduction: myPageData.introduction || '',
     runningTime: myPageData.runningTime || {},
     phoneNumber: myPageData.phoneNumber || '',
     image: myPageData.introductionImage || '',
     introductionImage: myPageData.introductionImage || [],
-  });
+  }); // 편집 데이터
 
   const [showAllImages, setShowAllImages] = useState(false);
   const [selectedImageModalOpen, setSelectedImageModalOpen] = useState(false);
@@ -36,6 +37,16 @@ export default function HomeContent({ myPageData }) {
   const actualNestedGridImageCount = nestedGridImages.length;
   const showNestedGridOverlay = hasMoreThanThreeImages && actualNestedGridImageCount > 1;
 
+  useEffect(() => {
+    setProfileEditData({
+      introduction: myPageData.introduction || '',
+      runningTime: myPageData.runningTime || {},
+      phoneNumber: myPageData.phoneNumber || '',
+      image: myPageData.introductionImage || '',
+      introductionImage: myPageData.introductionImage || [],
+    });
+  }, [myPageData]);
+
   const handleExpandClick = () => {
     setShowAllImages(true);
   };
@@ -46,59 +57,114 @@ export default function HomeContent({ myPageData }) {
   };
 
   const handleMyPageInfoConfirm = updatedData => {
-    console.log('Updated MyPage Data:', updatedData);
     setModalOpen(false);
+    onPatchProfileInfo(updatedData);
   };
+
+  // 모달 닫기 + 데이터 롤백
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setProfileEditData({
+      introduction: myPageData.introduction || '',
+      runningTime: myPageData.runningTime || {},
+      phoneNumber: myPageData.phoneNumber || '',
+      image: myPageData.introductionImage || '',
+      introductionImage: myPageData.introductionImage || [],
+    });
+  };
+
+  const {
+    introductionImage,
+    introduction,
+    phoneNumber,
+    category,
+    address,
+    detailAddress,
+    runningTime,
+  } = myPageData;
+  const { openingTime, closingTime, working_day_of_week } = runningTime;
+
+  const notWorkingDays = working_day_of_week
+    ? daysOfWeek.filter(day => !working_day_of_week.includes(day))
+    : [];
 
   return (
     <Container>
       <ModalProfileInfo
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleModalClose}
         myPageData={myPageData}
         onPatchProfileInfo={handleMyPageInfoConfirm}
-        profileData={profileData}
-        setProfileData={setProfileData}
+        profileEditData={profileEditData}
+        setProfileEditData={setProfileEditData}
       />
       <ModalImageSlider
         title="증상 사진"
         isOpen={selectedImageModalOpen && selectedImageIndex !== null}
         onClose={() => setSelectedImageModalOpen(false)}
-        imageUrls={myPageData.introductionImage}
+        imageUrls={introductionImage}
         startIndex={selectedImageIndex}
       />
       <Introduction>
         <Title>소개</Title>
-        <Text>{myPageData.introduction || '소개글이 없습니다.'}</Text>
+        <Text>{introduction || '소개글이 없습니다.'}</Text>
       </Introduction>
       <Column $gap={12}>
         <HomeContentRow
-          isEmpty={'임시'}
+          isEmpty={openingTime === null && closingTime === null} // 영업시간은 항상 값이 있음
           icon={TimeIcn}
           label="영업 시간"
-          value={myPageData.runningTime || '정보 없음'}
+          values={[
+            {
+              id: 1,
+              value: `${openingTime} ~ ${closingTime}`,
+              color: color('grayscale.800'),
+            },
+            {
+              id: 2,
+              value: `${
+                notWorkingDays.length === 0 ? '(휴무 없음)' : `(${notWorkingDays.join(', ')} 휴무)`
+              }`,
+              color: '#FF3F3F',
+            },
+          ]}
+          onOpen={() => setModalOpen(true)}
         />
         <HomeContentRow
-          isEmpty={!myPageData.phoneNumber}
+          isEmpty={!phoneNumber}
           icon={PhoneIcn}
           label="전화번호"
-          value={myPageData.phoneNumber || '정보 없음'}
+          values={[
+            {
+              id: 1,
+              value: phoneNumber || '정보 없음',
+              color: color('grayscale.800'),
+            },
+          ]}
         />
         <HomeContentRow
-          isEmpty={!myPageData.category}
+          isEmpty={!category}
           icon={LocationIcn}
           label="카테고리"
-          value={myPageData.category || '정보 없음'}
+          values={[
+            {
+              id: 1,
+              value: category || '정보 없음',
+              color: color('grayscale.800'),
+            },
+          ]}
         />
         <HomeContentRow
-          isEmpty={!myPageData.address}
+          isEmpty={!address}
           icon={BookmarkIcn}
           label="주소"
-          value={
-            myPageData.address
-              ? `${myPageData.address} ${myPageData.detailAddress || ''}`.trim()
-              : '정보 없음'
-          }
+          values={[
+            {
+              id: 1,
+              value: address ? `${address} ${detailAddress || ''}`.trim() : '정보 없음',
+              color: color('grayscale.800'),
+            },
+          ]}
         />
       </Column>
 

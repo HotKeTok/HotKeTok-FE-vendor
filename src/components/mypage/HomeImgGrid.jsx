@@ -3,10 +3,10 @@ import { typo, color } from '../../styles/tokens';
 import CloseIcn from '../../assets/common/icon-close.svg?react';
 import PhotoAddIcn from '../../assets/common/icon-camera.svg?react';
 
-export default function HomeImgGrid({ images, setProfileData, profileData }) {
+export default function HomeImgGrid({ images, setProfileEditData, profileEditData }) {
   const handleImageDelete = indexToDelete => {
     const updatedImages = images.filter((_, index) => index !== indexToDelete);
-    setProfileData({ ...profileData, introductionImage: updatedImages });
+    setProfileEditData({ ...profileEditData, introductionImage: updatedImages });
   };
 
   const handleImageUpload = e => {
@@ -19,7 +19,7 @@ export default function HomeImgGrid({ images, setProfileData, profileData }) {
 
     const newImageUrls = files.map(file => URL.createObjectURL(file));
     // todo: 서버 url 받아오기 (현재는 로컬로 처리)
-    setProfileData({ ...profileData, introductionImage: [...images, ...newImageUrls] });
+    setProfileEditData({ ...profileEditData, introductionImage: [...images, ...newImageUrls] });
   };
 
   return (

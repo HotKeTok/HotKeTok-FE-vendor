@@ -23,7 +23,6 @@ export default function NewsContent({ newsData, onEdit, onDelete }) {
     if (selectedNewsId) {
       onDelete(selectedNewsId);
     }
-    // todo: toast 추가
     handleModalClose();
   };
 

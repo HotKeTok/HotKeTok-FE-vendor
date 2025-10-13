@@ -11,37 +11,58 @@ import EditIcn from '../../assets/common/icon-edit-pencil.svg?react';
 import ProfileDefaultIcn from '../../assets/common/icon-profile-default.svg?react';
 import ArrowDownIcn from '../../assets/common/icon-arrow-down.svg?react';
 import { formatPhone } from '../../utils/format';
+import { daysOfWeek } from '../../constants/Date';
+import { useMemo } from 'react';
 
 export default function ModalProfileInfo({
   isOpen,
   onClose,
-  myPageData,
+  myPageData, // 편집 전 불변하는 데이터
   onPatchProfileInfo,
-  profileData,
-  setProfileData,
+  profileEditData, // 편집 데이터
+  setProfileEditData, // 편집 데이터 설정 함수
 }) {
-  const { introduction, phoneNumber, runningTime, introductionImage } = profileData;
+  const { introduction, phoneNumber, runningTime, introductionImage } = profileEditData;
+  const { openingTime, closingTime, working_day_of_week } = runningTime;
+  const [initialData, setInitialData] = useState(myPageData);
   const [isTimeEditorOpen, setIsTimeEditorOpen] = useState(false);
+
+  const isFormValid = useMemo(() => {
+    const { introduction, phoneNumber, runningTime } = profileEditData;
+    const { openingTime, closingTime, working_day_of_week } = runningTime;
+
+    return (
+      introduction && phoneNumber && openingTime && closingTime && working_day_of_week?.length > 0
+    );
+  }, [profileEditData]);
 
   const handlePhoneChange = e => {
     const formattedValue = formatPhone(e.target.value);
-    setProfileData({ ...profileData, phoneNumber: formattedValue });
+    setProfileEditData({ ...profileEditData, phoneNumber: formattedValue });
   };
 
-  const [initialData, setInitialData] = useState(null);
+  const handleModalClose = () => {
+    setProfileEditData(initialData); // rollback
+    setIsTimeEditorOpen(false);
+    onClose();
+  };
 
-  useEffect(() => {
-    if (isOpen) {
-      setInitialData(profileData);
+  const handleModalConfirm = () => {
+    if (isFormValid) {
+      onPatchProfileInfo(profileEditData);
+      handleModalClose();
     }
-  }, [isOpen]);
+  };
 
-  const isDirty = JSON.stringify(initialData) !== JSON.stringify(profileData);
+  const isDirty = JSON.stringify(initialData) !== JSON.stringify(profileEditData);
+  const notWorkingDays = working_day_of_week
+    ? daysOfWeek.filter(day => !working_day_of_week.includes(day))
+    : [];
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleModalClose}
       style={{ width: '42%', maxHeight: '90%', overflow: 'scroll' }}
     >
       <Container $gap={6} $align="flex-start">
@@ -50,8 +71,8 @@ export default function ModalProfileInfo({
         {/* 상단 프로필 영역 (프로필 이미지, 이름, 카테고리) */}
         <Column $gap={10} $align="center" style={{ width: '100%' }}>
           <ProfileImageContainer>
-            {profileData.profileImg ? (
-              <ProfileImg src={profileData.profileImg} alt="프로필 이미지" />
+            {profileEditData.profileImg ? (
+              <ProfileImg src={profileEditData.profileImg} alt="프로필 이미지" />
             ) : (
               <ProfileDefaultIcn />
             )}
@@ -66,7 +87,7 @@ export default function ModalProfileInfo({
                 if (file) {
                   const imageUrl = URL.createObjectURL(file);
                   // todo: 실제 서버 url
-                  setProfileData({ ...profileData, profileImg: imageUrl });
+                  setProfileEditData({ ...profileEditData, profileImg: imageUrl });
                 }
               }}
             />
@@ -83,7 +104,9 @@ export default function ModalProfileInfo({
               <TextField
                 placeholder="가게 소개를 입력해주세요"
                 value={introduction || ''}
-                onChange={e => setProfileData({ ...profileData, introduction: e.target.value })}
+                onChange={e =>
+                  setProfileEditData({ ...profileEditData, introduction: e.target.value })
+                }
                 width="100%"
                 maxLength={50}
               />
@@ -107,9 +130,24 @@ export default function ModalProfileInfo({
                 <Label>영업 시간</Label>
               </LabelRow>
 
-              <ToggleContainer onClick={() => setIsTimeEditorOpen(prev => !prev)}>
-                <Row $justify="space-between" style={{ width: '100%' }}>
-                  <Label style={{ color: '#a8a8a8' }}>영업 시간을 입력해주세요</Label>
+              <ToggleContainer>
+                <Row
+                  $justify="space-between"
+                  style={{ width: '100%', cursor: 'pointer' }}
+                  onClick={() => setIsTimeEditorOpen(prev => !prev)}
+                >
+                  {!isTimeEditorOpen && openingTime && closingTime && working_day_of_week ? (
+                    <Label style={{ opacity: isDirty ? 1 : 0.5 }}>
+                      {openingTime} ~ {closingTime}{' '}
+                      <ClosingDays>
+                        {notWorkingDays.length === 0
+                          ? '(휴무 없음)'
+                          : `(${notWorkingDays.join(', ')} 휴무)`}
+                      </ClosingDays>
+                    </Label>
+                  ) : (
+                    <Label style={{ color: '#a8a8a8' }}>영업 시간을 입력해주세요</Label>
+                  )}
                   <IcnContainer $isOpened={isTimeEditorOpen}>
                     <ToggleIcn />
                   </IcnContainer>
@@ -117,8 +155,9 @@ export default function ModalProfileInfo({
                 {isTimeEditorOpen && (
                   <HomeTimeEditor
                     runningTime={runningTime}
-                    setProfileData={setProfileData}
-                    profileData={profileData}
+                    setProfileEditData={setProfileEditData}
+                    profileEditData={profileEditData} // 편집 데이터
+                    initialData={initialData.runningTime} // 초기 데이터
                   />
                 )}
               </ToggleContainer>
@@ -129,23 +168,20 @@ export default function ModalProfileInfo({
               <Label>업체 소개 사진</Label>
               <HomeImgGrid
                 images={introductionImage}
-                setProfileData={setProfileData}
-                profileData={profileData}
+                setProfileEditData={setProfileEditData}
+                profileEditData={profileEditData}
               />
             </RowContainer>
           </Column>
         </Column>
       </Container>
       <BtnContainer>
-        <Button text="취소하기" width={136} dismiss onClick={onClose} />
+        <Button text="취소하기" width={136} dismiss onClick={handleModalClose} />
         <Button
           text="저장하기"
-          active={isDirty}
+          active={isFormValid && isDirty}
           width={136}
-          onClick={() => {
-            onPatchProfileInfo(profileData);
-            onClose();
-          }}
+          onClick={handleModalConfirm}
         />
       </BtnContainer>
     </Modal>
@@ -231,6 +267,13 @@ const Caption = styled.div`
 const Label = styled.label`
   ${typo('body2')};
   color: ${color('grayscale.600')};
+
+  cursor: pointer;
+`;
+
+const ClosingDays = styled.span`
+  ${typo('body2')};
+  color: #ff3f3f;
 `;
 
 const TextLength = styled.div`
@@ -254,8 +297,6 @@ const ToggleContainer = styled.div`
   background-color: ${color('grayscale.100')};
   border-radius: 10px;
   border: 1px solid ${color('grayscale.300')};
-
-  cursor: pointer;
 `;
 
 const IcnContainer = styled.div`
