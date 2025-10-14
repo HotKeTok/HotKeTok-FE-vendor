@@ -699,6 +699,18 @@
   resolved "https://registry.npmjs.org/@types/stylis/-/stylis-4.2.5.tgz"
   integrity sha512-1Xve+NMN7FWjY14vLoY5tL3BVEQ/n42YLwaqJIPYhotZ9uBHt87VceMwWQpzmdEt2TNXIorIFG+YeCUUW7RInw==
 
+"@use-funnel/core@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@use-funnel/core/-/core-0.0.12.tgz#b72379966f540480d4f9881fcec6188a91f75c7c"
+  integrity sha512-IikmJCqiQxbqxMAKdIEvX4MiuaM4nu0mfuAdnbI4CKf1FFLy/c4GHGKHW2+zm4aQAdEtxCuwou/wOwDhrTSWbg==
+
+"@use-funnel/react-router-dom@^0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@use-funnel/react-router-dom/-/react-router-dom-0.0.14.tgz#07ca1496765f4c3d7ab418e1b388261d86f0263d"
+  integrity sha512-bQtSvV8lqwDdytabVEkaL5H/LyckQwvnCyUQdY4lSeN1RXdXtQEyhUV0Z2bnigMkt0Qd6iOxIVn1zwoYMK6oEw==
+  dependencies:
+    "@use-funnel/core" "^0.0.12"
+
 "@vitejs/plugin-react@^5.0.4":
   version "5.0.4"
   resolved "https://registry.npmjs.org/@vitejs/plugin-react/-/plugin-react-5.0.4.tgz"

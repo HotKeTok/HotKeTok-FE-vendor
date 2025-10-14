@@ -7,7 +7,7 @@ import TextField from '../components/common/TextField';
 import Button from '../components/common/Button';
 import ButtonSmall from '../components/common/ButtonSmall';
 
-import LeftSection from '../components/onbording/LeftSection';
+import LeftSection from '../components/onboarding/LeftSection';
 import { Column, Row } from '../styles/flex';
 
 import iconArrowLeft from '../assets/common/icon-arrow-left.svg';

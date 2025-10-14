@@ -7,7 +7,7 @@ import { Column } from '../styles/flex';
 
 import TextField from '../components/common/TextField';
 import Button from '../components/common/Button';
-import LeftSection from '../components/onbording/LeftSection';
+import LeftSection from '../components/onboarding/LeftSection';
 
 export default function SignInTemplate() {
   const [userId, setUserId] = useState('');
