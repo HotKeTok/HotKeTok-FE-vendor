@@ -7,7 +7,7 @@ import { Column } from '../styles/flex';
 
 import TextField from '../components/common/TextField';
 import Button from '../components/common/Button';
-import LeftSection from '../components/onbording/LeftSection';
+import LeftSection from '../components/onboarding/LeftSection';
 
 export default function SignInTemplate() {
   const [userId, setUserId] = useState('');
@@ -19,7 +19,7 @@ export default function SignInTemplate() {
     <BackgroundContainer background={imgBackground}>
       <Content>
         <LeftSection
-          maintext={'환영합니다! \n 계정에 로그인 해주세요.'}
+          maintext={'환영합니다! \n 계정에 로그인해 주세요.'}
           subtext={'우리 동네 수리 요청, \n 힛케톡에서 바로 만나보세요.'}
         />
         <RightSection>
