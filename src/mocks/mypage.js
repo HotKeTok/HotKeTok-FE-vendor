@@ -21,15 +21,13 @@ export const DUMMY_MYPAGE_DATA = {
   rate: 4,
   reviewCount: 20,
   phoneNumber: '010-1234-5678', // 전화번호
-  runningTime: [
-    { id: 1, dayName: '월', isOpen: true, startTime: '09:00', endTime: '20:00' },
-    { id: 2, dayName: '화', isOpen: true, startTime: '09:00', endTime: '18:00' },
-    { id: 3, dayName: '수', isOpen: true, startTime: '09:00', endTime: '18:00' },
-    { id: 4, dayName: '목', isOpen: true, startTime: '09:00', endTime: '18:00' },
-    { id: 5, dayName: '금', isOpen: true, startTime: '09:00', endTime: '18:00' },
-    { id: 6, dayName: '토', isOpen: true, startTime: '09:00', endTime: '18:00' },
-    { id: 7, dayName: '일', isOpen: false, startTime: null, endTime: null },
-  ],
+  runningTime: {
+    // openingTime: '09:00',
+    openingTime: null,
+    // closingTime: '18:00',
+    closingTime: null,
+    working_day_of_week: ['월', '화', '수', '목', '금', '토', '일'], // 초깃값 null일 때 모두 영업
+  },
 };
 
 export const DUMMY_NEWS_DATA = [
