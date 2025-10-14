@@ -30,6 +30,8 @@ import iconStep3 from '../assets/onboarding/icon-register-step-3.svg';
 import iconStep4 from '../assets/onboarding/icon-register-step-4.svg';
 import iconStep5 from '../assets/onboarding/icon-register-step-5.svg';
 
+const FixedLeftSection = React.memo(LeftSection);
+
 /* ============================================================================
  * 모의 주소 검색 (실서비스에서는 API 대체)
  * ========================================================================== */
@@ -70,21 +72,13 @@ function mockSearchAddresses(keyword) {
 function Shell({ icon, children, onBack }) {
   const nav = useNavigate();
   return (
-    <BackgroundContainer background={imgBackground}>
-      <Content>
-        <LeftSection
-          maintext={'업체 정보를 입력하고 \n프로필을 완성해 보세요.'}
-          subtext={'우리 동네 수리 요청, \n 핫케톡에서 바로 만나보세요.'}
-        />
-        <RightSection>
-          <BackButton onClick={() => (onBack ? onBack() : nav(-1))}>
-            <img src={iconArrowLeft} alt="back" />
-          </BackButton>
-          <IconStep src={icon} alt="step" />
-          {children}
-        </RightSection>
-      </Content>
-    </BackgroundContainer>
+    <RightSection>
+      <BackButton onClick={() => (onBack ? onBack() : nav(-1))}>
+        <img src={iconArrowLeft} alt="back" />
+      </BackButton>
+      <IconStep src={icon} alt="step" />
+      {children}
+    </RightSection>
   );
 }
 
@@ -472,76 +466,92 @@ export default function InitProcessTemplate() {
   });
 
   return (
-    <Funnel.Render
-      CompanyName={({ history, context }) => (
-        <StepCompanyName
-          defaultName={context.companyName}
-          onNext={({ companyName }) => history.push('CompanyType', { ...context, companyName })}
+    <BackgroundContainer background={imgBackground}>
+      <Content>
+        <FixedLeftSection
+          maintext={'업체 정보를 입력하고 \n프로필을 완성해 보세요.'}
+          subtext={'우리 동네 수리 요청, \n 핫케톡에서 바로 만나보세요.'}
         />
-      )}
-      CompanyType={({ history, context }) => (
-        <StepCompanyType
-          defaultType={context.companyType}
-          onBack={history.back}
-          onNext={({ companyType }) => history.push('AddressKeyword', { ...context, companyType })}
+
+        {/* 오른쪽 카드만 단계별로 교체 렌더 */}
+        <Funnel.Render
+          CompanyName={({ history, context }) => (
+            <StepCompanyName
+              defaultName={context.companyName}
+              onNext={({ companyName }) => history.push('CompanyType', { ...context, companyName })}
+            />
+          )}
+          CompanyType={({ history, context }) => (
+            <StepCompanyType
+              defaultType={context.companyType}
+              onBack={history.back}
+              onNext={({ companyType }) =>
+                history.push('AddressKeyword', { ...context, companyType })
+              }
+            />
+          )}
+          AddressKeyword={({ history, context }) => (
+            <StepAddressKeyword
+              defaultKeyword={context.addressKeyword}
+              onBack={history.back}
+              onNext={({ baseAddress }) =>
+                history.push('AddressDetail', { ...context, baseAddress })
+              }
+            />
+          )}
+          AddressDetail={({ history, context }) => (
+            <StepAddressDetail
+              baseAddress={context.baseAddress}
+              defaultDetail={context.detail}
+              onBack={history.back}
+              onNext={({ detail }) => history.push('Introduce', { ...context, detail })}
+            />
+          )}
+          Introduce={({ history, context }) => (
+            <StepIntroduce
+              defaultIntro={context.intro}
+              defaultImages={context.images || []}
+              onBack={history.back}
+              onNext={({ intro, images }) =>
+                history.push('BusinessCert', { ...context, intro, images })
+              }
+            />
+          )}
+          BusinessCert={({ history, context }) => (
+            <StepBusinessCert
+              defaultFileName={context.bizCert}
+              onBack={history.back}
+              summary={{
+                name: context.companyName,
+                // COMPANY_TYPES의 title을 그대로 쓰고 싶으면 아래 한 줄로 교체:
+                // typeTitle: COMPANY_TYPES.find(t => t.key === context.companyType)?.title || '',
+                typeTitle:
+                  ['general', 'interior', 'special']
+                    .map(k => ({
+                      k,
+                      t: {
+                        general: '종합설비업체',
+                        interior: '인테리어/리모델링 업체',
+                        special: '전문업체',
+                      }[k],
+                    }))
+                    .find(x => x.k === context.companyType)?.t || '',
+                addr1: `${context.baseAddress?.sido || ''} ${context.baseAddress?.sigungu || ''} ${
+                  context.baseAddress?.road || ''
+                }`,
+                addr2: `${context.baseAddress?.building || ''} ${context.detail || ''}`.trim(),
+                intro: context.intro || '',
+                images: (context.images || []).map(it => ({ name: it.name, url: it.url })),
+              }}
+              onNext={({ bizCert }) => {
+                // 필요시 컨텍스트 저장만 (모달의 onConfirm에서 홈으로 이동)
+                history.push('Done', { ...context, bizCert });
+              }}
+            />
+          )}
         />
-      )}
-      AddressKeyword={({ history, context }) => (
-        <StepAddressKeyword
-          defaultKeyword={context.addressKeyword}
-          onBack={history.back}
-          onNext={({ baseAddress }) => history.push('AddressDetail', { ...context, baseAddress })}
-        />
-      )}
-      AddressDetail={({ history, context }) => (
-        <StepAddressDetail
-          baseAddress={context.baseAddress}
-          defaultDetail={context.detail}
-          onBack={history.back}
-          onNext={({ detail }) => history.push('Introduce', { ...context, detail })}
-        />
-      )}
-      Introduce={({ history, context }) => (
-        <StepIntroduce
-          defaultIntro={context.intro}
-          defaultImages={context.images || []}
-          onBack={history.back}
-          onNext={({ intro, images }) =>
-            history.push('BusinessCert', { ...context, intro, images })
-          }
-        />
-      )}
-      BusinessCert={({ history, context }) => (
-        <StepBusinessCert
-          defaultFileName={context.bizCert}
-          onBack={history.back}
-          summary={{
-            name: context.companyName,
-            typeTitle:
-              ['general', 'interior', 'special']
-                .map(k => ({
-                  k,
-                  t: {
-                    general: '종합설비업체',
-                    interior: '인테리어/리모델링 업체',
-                    special: '전문업체',
-                  }[k],
-                }))
-                .find(x => x.k === context.companyType)?.t || '',
-            addr1: `${context.baseAddress?.sido || ''} ${context.baseAddress?.sigungu || ''} ${
-              context.baseAddress?.road || ''
-            }`,
-            addr2: `${context.baseAddress?.building || ''} ${context.detail || ''}`.trim(),
-            intro: context.intro || '',
-            images: (context.images || []).map(it => ({ name: it.name, url: it.url })),
-          }}
-          onNext={({ bizCert }) => {
-            // 필요한 경우 컨텍스트 저장만
-            history.push('Done', { ...context, bizCert });
-          }}
-        />
-      )}
-    />
+      </Content>
+    </BackgroundContainer>
   );
 }
 
