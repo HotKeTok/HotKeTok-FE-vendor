@@ -46,7 +46,7 @@ export default function TextField({
 
 const FieldWrapper = styled.div`
   position: relative;
-  width: ${(p) => p.$width || '100%'};
+  width: ${p => p.$width || '100%'};
 `;
 
 const Input = styled.input`
@@ -55,7 +55,7 @@ const Input = styled.input`
   height: 44px;
   padding: 13px 15px;
   /* 우측 아이콘이 있으면 오른쪽 패딩 늘림 */
-  padding-right: ${(p) => (p.$hasRightIcon ? '44px' : '15px')};
+  padding-right: ${p => (p.$hasRightIcon ? '44px' : '15px')};
 
   border-radius: 6px;
   border: 1px solid var(--Basic-GrayScale-Gray-200, #efefef);
@@ -69,13 +69,13 @@ const Input = styled.input`
     color: ${color('grayscale.400')};
   }
 
-  ${(props) =>
+  ${props =>
     props.state === 'error' &&
     css`
       border-color: rgba(255, 63, 63, 0.5);
     `}
 
-  ${(props) =>
+  ${props =>
     props.state === 'success' &&
     css`
       border-color: rgba(1, 210, 129, 0.5);
