@@ -8,6 +8,14 @@ import { Column, Row } from '../../styles/flex';
 export default function ModalRegisterConfirm({ open, onClose, onConfirm, data }) {
   const { name, typeTitle, addr1, addr2, intro, images = [] } = data || {};
 
+  // ✅ 괄호 분리 함수
+  const splitRoad = str => {
+    const match = String(str).match(/^(.*?)(\s*\(.*\))$/);
+    return match ? { road: match[1].trim(), bracket: match[2].trim() } : { road: str, bracket: '' };
+  };
+
+  const { road, bracket } = splitRoad(addr1 || '');
+
   return (
     <Modal isOpen={open} onClose={onClose} style={{ width: '420px', padding: 0 }}>
       <Wrap>
@@ -20,16 +28,29 @@ export default function ModalRegisterConfirm({ open, onClose, onConfirm, data })
           <InfoTable>
             <InfoRow label="이름" value={name} />
             <InfoRow label="업종" value={typeTitle} />
+
+            {/* ✅ 도로명 주소 줄바꿈 처리 */}
             <InfoRow
               label="주소"
               value={
                 <div>
-                  {addr1}
-                  <br />
-                  {addr2}
+                  {road}
+                  {bracket && (
+                    <>
+                      <br />
+                      {bracket}
+                    </>
+                  )}
+                  {addr2 && (
+                    <>
+                      <br />
+                      {addr2}
+                    </>
+                  )}
                 </div>
               }
             />
+
             <Column $gap={8} style={{ width: '100%' }}>
               <InfoRow label="소개" />
               <DescBox>{intro}</DescBox>

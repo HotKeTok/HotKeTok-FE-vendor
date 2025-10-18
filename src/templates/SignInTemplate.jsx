@@ -1,10 +1,8 @@
-// src/templates/SignInTemplate.jsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { color, typo } from '../styles/tokens';
 import imgBackground from '../assets/common/img-background.png';
 import { Column } from '../styles/flex';
-
 import LeftSection from '../components/onboarding/LeftSection';
 import TextField from '../components/common/TextField';
 import Button from '../components/common/Button';
@@ -13,19 +11,31 @@ export default function SignInTemplate({
   submitting = false,
   onSubmit = async () => {},
   onSignUp = () => {},
-  onNotify = () => {},
 }) {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
+  const [idError, setIdError] = useState('');
+  const [pwError, setPwError] = useState('');
 
   const canSubmit = Boolean(userId.trim() && password);
 
   const handleSubmit = async () => {
-    if (!canSubmit) {
-      onNotify('아이디와 비밀번호를 입력해주세요.');
-      return;
+    if (!canSubmit || submitting) return;
+
+    // 클릭 시마다 기존 에러 유지 → 새로운 검증만 반영
+    const res = await onSubmit({ logInId: userId, password });
+    if (!res?.success) {
+      if (res.reason === 'id') {
+        setIdError('존재하지 않는 계정이에요');
+        setPwError('');
+      } else if (res.reason === 'password') {
+        setPwError('비밀번호가 일치하지 않아요');
+        setIdError('');
+      } else {
+        setIdError(res?.message || '로그인에 실패했어요.');
+        setPwError('');
+      }
     }
-    await onSubmit({ logInId: userId, password });
   };
 
   const onKeyDown = e => {
@@ -43,6 +53,7 @@ export default function SignInTemplate({
         />
         <RightSection>
           <LoginText>로그인</LoginText>
+
           <Column $gap={14}>
             <Column>
               <Label>아이디</Label>
@@ -52,7 +63,9 @@ export default function SignInTemplate({
                 onChange={e => setUserId(e.target.value)}
                 onKeyDown={onKeyDown}
               />
+              {idError && <GuideText>{idError}</GuideText>}
             </Column>
+
             <Column>
               <Label>비밀번호</Label>
               <TextField
@@ -62,8 +75,10 @@ export default function SignInTemplate({
                 onChange={e => setPassword(e.target.value)}
                 onKeyDown={onKeyDown}
               />
+              {pwError && <GuideText>{pwError}</GuideText>}
             </Column>
           </Column>
+
           <Column $gap={20}>
             <Button
               text={submitting ? '로그인 중...' : '로그인'}
@@ -120,6 +135,13 @@ const Label = styled.div`
   ${typo('caption1')};
   color: ${color('grayscale.600')};
   margin-bottom: 4px;
+`;
+
+const GuideText = styled.div`
+  ${typo('caption2')};
+  color: #ff3f3f;
+  white-space: pre-line;
+  margin-top: 6px;
 `;
 
 const SignUpButtonWrapper = styled.div`

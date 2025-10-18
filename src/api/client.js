@@ -12,15 +12,29 @@ import { apiRefreshToken } from './auth-service';
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 10000,
-  headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+  headers: { Accept: 'application/json' },
 });
 
 /** 동시 401 처리용 큐 */
 let isRefreshing = false;
 let pendingQueue = []; // [{ resolve, reject, config }]
 
-// ✅ 토큰 주입/리프레시를 건너뛸 엔드포인트(로그인/회원가입/토큰갱신 등)
+// ✅ 인증을 건너뛸 엔드포인트(로그인/회원가입/토큰갱신만)
 const AUTH_WHITELIST = ['/auth-service/login', '/auth-service/signup', '/auth-service/refresh'];
+
+function safePathname(url, base) {
+  try {
+    const absBase = /^https?:\/\//.test(base)
+      ? base
+      : window.location.origin.replace(/\/$/, '') + String(base || '');
+    return new URL(url, absBase).pathname;
+  } catch {
+    return String(url || '').split('?')[0] || '';
+  }
+}
+function isWhitelisted(pathname) {
+  return AUTH_WHITELIST.some(p => pathname.startsWith(p));
+}
 
 function processQueue(error, newAccessToken) {
   pendingQueue.forEach(p => {
@@ -35,28 +49,25 @@ function processQueue(error, newAccessToken) {
 }
 
 api.interceptors.request.use(async config => {
-  // pathname 안전추출
   const base = api.defaults.baseURL || '';
-  let pathname = '';
-  try {
-    pathname = new URL(config.url, base).pathname;
-  } catch {
-    pathname = (config.url || '').split('?')[0] || '';
-  }
+  const pathname = safePathname(config.url, base);
 
-  const isAuthFree = AUTH_WHITELIST.some(p => pathname.startsWith(p));
+  const isAuthFree = isWhitelisted(pathname);
+
+  // 화이트리스트는 Authorization 제거
   if (isAuthFree) {
     if (config.headers?.Authorization) delete config.headers.Authorization;
     return config;
   }
 
+  // 액세스 토큰 주입
   const at = getAccessToken();
   if (at) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${at}`;
   }
 
-  // 선제 리프레시 (옵션)
+  // 선제 리프레시 (선택)
   if (at && isAccessTokenExpiringSoon(at) && getRefreshToken() && !isRefreshing) {
     try {
       isRefreshing = true;
@@ -78,6 +89,20 @@ api.interceptors.request.use(async config => {
     }
   }
 
+  // ✅ FormData일 땐 Content-Type을 제거해서 boundary 자동 세팅 유도
+  if (config.data instanceof FormData) {
+    if (config.headers) {
+      delete config.headers['Content-Type'];
+      delete config.headers['content-type'];
+    }
+  } else {
+    // JSON 보낼 때만 기본 Content-Type 보장
+    config.headers = config.headers || {};
+    if (!config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+  }
+
   return config;
 });
 
@@ -86,11 +111,11 @@ api.interceptors.response.use(
   async error => {
     const original = error.config;
     const status = error?.response?.status;
+    const base = api.defaults.baseURL || '';
+    const pathname = safePathname(original?.url, base);
 
-    const urlPath = (original?.url || '').replace(api.defaults.baseURL, '');
-    const isAuthFree = AUTH_WHITELIST.some(p => urlPath.startsWith(p));
-
-    if (status === 401 && !isAuthFree && !original?._retry && getRefreshToken()) {
+    // 화이트리스트는 리프레시 재시도 금지
+    if (status === 401 && !isWhitelisted(pathname) && !original?._retry && getRefreshToken()) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           pendingQueue.push({ resolve, reject, config: original });
