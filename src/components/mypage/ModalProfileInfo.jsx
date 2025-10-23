@@ -146,7 +146,7 @@ export default function ModalProfileInfo({
                       </ClosingDays>
                     </Label>
                   ) : (
-                    <Label style={{ color: '#a8a8a8' }}>영업 시간을 입력해주세요</Label>
+                    <Label style={{ color: '#a8a8a8' }}>영업 시간과 요일을 설정해주세요</Label>
                   )}
                   <IcnContainer $isOpened={isTimeEditorOpen}>
                     <ToggleIcn />
