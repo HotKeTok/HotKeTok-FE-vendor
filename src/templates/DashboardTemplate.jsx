@@ -11,6 +11,7 @@ import ModalImageSlider from '../components/common/ModalImageSlider';
 import { useNavigate } from 'react-router-dom';
 import { isToday, format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import NoDataIcn from '../assets/common/icon-no-content.svg?react';
 
 export default function DashboardTemplate({
   repairCounts, // (1) 수리 현황별 개수
@@ -50,7 +51,7 @@ export default function DashboardTemplate({
           onClose={() => setDetailModalOpen(false)}
           onChat={() => onChatRoute(clickedRepairId)}
           onImgClick={index => onImageModalOpen(index)}
-          repairData={selectedDateRepairs.find(repair => repair.id === clickedRepairId)}
+          repairData={selectedDateRepairs.find(repair => repair.estimateId === clickedRepairId)}
         />
       )}
       {selectedImageModalOpen && selectedImageIndex !== null && (
@@ -59,7 +60,8 @@ export default function DashboardTemplate({
           isOpen={selectedImageModalOpen && selectedImageIndex !== null}
           onClose={() => setSelectedImageModalOpen(false)}
           imageUrls={
-            selectedDateRepairs.find(repair => repair.id === clickedRepairId)?.symptomPhotos || []
+            selectedDateRepairs.find(repair => repair.estimateId === clickedRepairId)
+              ?.symptomPhotos || []
           }
           startIndex={selectedImageIndex}
         />
@@ -88,11 +90,22 @@ export default function DashboardTemplate({
           </H3>
           <Caption1>총 {selectedDateRepairs.length}개의 일정이 있어요.</Caption1>
         </Column>
-        <RightScrollContainer>
-          {selectedDateRepairs.map((repair, index) => (
-            <RepairDetailBox key={index} repair={repair} onDetailClick={onDetailModalOpen} />
-          ))}
-        </RightScrollContainer>
+        {selectedDateRepairs.length > 0 ? (
+          <RightScrollContainer>
+            {selectedDateRepairs.map((repair, index) => (
+              <RepairDetailBox
+                key={index}
+                repair={repair}
+                onDetailClick={() => onDetailModalOpen(repair.estimateId)}
+              />
+            ))}
+          </RightScrollContainer>
+        ) : (
+          <Column $gap={10} $justify="center" $align="center " style={{ flex: 1 }}>
+            <NoDataIcn width={24} height={24} />
+            <Body1>진행 중인 수리건이 없어요</Body1>
+          </Column>
+        )}
       </RightContainer>
     </Container>
   );
@@ -156,4 +169,9 @@ const H3 = styled.div`
 const Caption1 = styled.div`
   ${typo('caption1')};
   color: ${color('grayscale.600')};
+`;
+
+const Body1 = styled.div`
+  ${typo('body1')};
+  color: ${color('grayscale.300')};
 `;

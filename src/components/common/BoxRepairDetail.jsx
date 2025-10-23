@@ -26,42 +26,56 @@ export default function BoxRepairDetail({
 }) {
   if (!repair) return null;
 
-  const { id, status, title, location, repairDate, amount, costBearer, contact, description } =
-    repair;
+  const getCostBearer = payType => {
+    switch (payType) {
+      case 'PROPRIETORSHIP':
+        return '집주인';
+      case 'RESIDENT':
+        return '입주민';
+      default:
+        return '';
+    }
+  };
 
   return (
-    <Container style={style} $borderColor={borderColor} onClick={() => onDetailClick?.(id)}>
+    <Container
+      style={style}
+      $borderColor={borderColor}
+      onClick={() => onDetailClick?.(repair.estimateId)}
+    >
       {isToday && !hideStatusChip && (
         <Header>
-          <TimeChip time={formatTime(repairDate)} />
-          <RepairStatusChip status={status} />
+          <TimeChip time={formatTime(repair.estimateTime)} />
+          <RepairStatusChip status={repair.status} />
         </Header>
       )}
 
       <Row $justify="space-between" $align="center">
         <Title>
-          <div>{title}</div>
+          <div>{repair.category}</div>
           <StyledArrowRightIcn />
         </Title>
-        {!isToday && !hideStatusChip && <RepairStatusChip status={status} />}
+        {!isToday && !hideStatusChip && <RepairStatusChip status={repair.status} />}
       </Row>
 
-      <Location>{location}</Location>
+      <Location>{repair.address}</Location>
 
       <InfoTable>
         {!isToday && (
           <InfoRow
             label="수리 일시"
-            value={`${new Date(repairDate).toLocaleDateString()} / ${formatTime(repairDate)}`}
+            value={`${new Date(repair.estimateTime).toLocaleDateString()} / ${formatTime(
+              repair.estimateTime
+            )}`}
           />
         )}
-        <InfoRow label="금액" value={`${amount.toLocaleString()}원`} />
-        <InfoRow label="비용 부담" value={costBearer} />
-        <InfoRow label="전화번호" value={contact} />
+        <InfoRow label="금액" value={`${repair.estimatePrice?.toLocaleString()}원`} />
+        <InfoRow label="비용 부담" value={getCostBearer(repair.payType)} />
+        <InfoRow label="전화번호" value={repair.phoneNumber} />
         <InfoRow label="내용" />
       </InfoTable>
 
-      <DescriptionBox>{description}</DescriptionBox>
+      <DescriptionBox>{repair.estimateComment}</DescriptionBox>
     </Container>
   );
 }
