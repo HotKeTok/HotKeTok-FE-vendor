@@ -16,3 +16,8 @@ export const formatPhone = phone => {
   }
   return truncated;
 };
+
+export function formatCategoryName(value) {
+  if (!value || typeof value !== 'string') return '';
+  return value.replace(/_/g, '/');
+}

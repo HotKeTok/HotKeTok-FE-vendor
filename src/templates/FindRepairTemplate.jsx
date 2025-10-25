@@ -1,4 +1,5 @@
-import React, { useMemo, useState, useContext } from 'react';
+// src/templates/FindRepairTemplate.jsx
+import React, { useMemo, useState, useContext, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Column, Row } from '../styles/flex';
 import { color, typo } from '../styles/tokens';
@@ -16,107 +17,24 @@ import iconSad from '../assets/common/icon-sad.svg';
 import iconCheckFilled from '../assets/common/icon-check-filled.svg';
 import iconCheckNotFilled from '../assets/common/icon-check-not-filled.svg';
 
-/* ===========================
- * 목데이터
- * ============================ */
-const MOCK_REQUESTS = [
-  {
-    id: 'R001',
-    title: '문/창문 수리',
-    address: '동작 핫케톡 스테이 304호',
-    requestedAt: '2024.11.20 / 오전 12:00',
-    preferredDate: '2024.11.20 / 오전 12:00',
-    costPayer: '입주민',
-    phone: '010-1234-1234',
-    images: [
-      '/images/sample_1.jpg',
-      '/images/sample_2.jpg',
-      '/images/sample_3.jpg',
-      '/images/sample_4.jpg',
-      '/images/sample_5.jpg',
-      '/images/sample_6.jpg',
-    ],
-    description:
-      '바퀴벌레가 너무 많이꼈습니다. 약 2주정도 된 것 같아요. 매번 꼼꼼하게 청소하는데 원인을 모르겠습니다.',
-  },
-  {
-    id: 'R002',
-    title: '싱크대 누수',
-    address: '동작 핫케톡 스테이 502호',
-    requestedAt: '2024.11.20 / 오후 02:30',
-    preferredDate: '2024.11.22 / 오전 10:00',
-    costPayer: '집주인',
-    phone: '010-0000-0000',
-    images: ['/images/sample_1.jpg', '/images/sample_2.jpg'],
-    description: '하부장 안쪽이 젖어있고 물방울이 맺혀요. 실리콘과 배관 확인이 필요합니다.',
-  },
-  {
-    id: 'R003',
-    title: '보일러 점검',
-    address: '동작 핫케톡 스테이 203호',
-    requestedAt: '2024.11.19 / 오후 07:10',
-    preferredDate: '2024.11.23 / 오후 01:00',
-    costPayer: '입주민',
-    phone: '010-2222-3333',
-    images: [],
-    description: '온수가 일정하지 않고, 때때로 소음이 발생합니다. 안전점검 요청합니다.',
-  },
-  {
-    id: 'R004',
-    title: '요청1',
-    address: '동작 핫케톡 스테이 203호',
-    requestedAt: '2024.11.19 / 오후 07:10',
-    preferredDate: '2024.11.23 / 오후 01:00',
-    costPayer: '입주민',
-    phone: '010-2222-3333',
-    images: [],
-    description: '온수가 일정하지 않고, 때때로 소음이 발생합니다. 안전점검 요청합니다.',
-  },
-  {
-    id: 'R005',
-    title: '요청2',
-    address: '동작 핫케톡 스테이 203호',
-    requestedAt: '2024.11.19 / 오후 07:10',
-    preferredDate: '2024.11.23 / 오후 01:00',
-    costPayer: '입주민',
-    phone: '010-2222-3333',
-    images: [],
-    description: '온수가 일정하지 않고, 때때로 소음이 발생합니다. 안전점검 요청합니다.',
-  },
-  {
-    id: 'R006',
-    title: '요청3',
-    address: '동작 핫케톡 스테이 203호',
-    requestedAt: '2024.11.19 / 오후 07:10',
-    preferredDate: '2024.11.23 / 오후 01:00',
-    costPayer: '입주민',
-    phone: '010-2222-3333',
-    images: [],
-    description: '온수가 일정하지 않고, 때때로 소음이 발생합니다. 안전점검 요청합니다.',
-  },
-  {
-    id: 'R007',
-    title: '요청4',
-    address: '동작 핫케톡 스테이 203호',
-    requestedAt: '2024.11.19 / 오후 07:10',
-    preferredDate: '2024.11.23 / 오후 01:00',
-    costPayer: '입주민',
-    phone: '010-2222-3333',
-    images: [],
-    description: '온수가 일정하지 않고, 때때로 소음이 발생합니다. 안전점검 요청합니다.',
-  },
-];
-
 /* ============================
- * 메인
+ * 메인 (UI 전용)
  * ============================ */
-export default function FindRepairTemplate() {
-  const [requests] = useState(MOCK_REQUESTS); // []로 변경하면 수리 요청 없을 때 화면 확인 가능
+export default function FindRepairTemplate({ requests = [] }) {
+  // 🔹 선택/뷰어 등 UI 상태만 관리
   const [selectedId, setSelectedId] = useState(requests[0]?.id ?? null);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
 
-  // 🔹 Layout의 Overlay 포털 제어
+  // 요청 목록이 바뀔 때 첫 항목으로 선택 초기화(최초 로딩 포함)
+  useEffect(() => {
+    if (!requests || requests.length === 0) {
+      setSelectedId(null);
+    } else if (!selectedId || !requests.some(r => r.id === selectedId)) {
+      setSelectedId(requests[0].id);
+    }
+  }, [requests]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const { isOpen: overlayOpen, setOverlayContent, clearOverlay } = useContext(OverlayContext);
 
   const selected = useMemo(
@@ -132,7 +50,7 @@ export default function FindRepairTemplate() {
   return (
     <Container>
       <Row $gap={16} style={{ height: '100%', position: 'relative' }}>
-        {/* 좌측 상세 (Overlay가 열리면 살짝 줄어듬) */}
+        {/* 좌측 상세 */}
         <LeftSection $shifted={overlayOpen}>
           {selected ? (
             <RequestDetailBox>
@@ -204,7 +122,7 @@ export default function FindRepairTemplate() {
           startIndex={viewerIndex}
         />
 
-        {/* 우측 리스트 (Overlay 열리면 숨김) */}
+        {/* 우측 리스트 */}
         {!overlayOpen && (
           <RightSection>
             <RequestList
@@ -263,7 +181,7 @@ function RequestList({ requests, selectedId, onSelect }) {
 }
 
 /* ============================
- * 견적서 작성 시트 (Overlay 내부에 렌더)
+ * 견적서 작성 시트 (Overlay)
  * ============================ */
 function QuoteSheet({ request, onClose }) {
   const [amount, setAmount] = useState('');
@@ -285,26 +203,23 @@ function QuoteSheet({ request, onClose }) {
 
         <Column $gap={4}>
           <Caption1_800>금액</Caption1_800>
-          {/* ✅ afterConsult=false 일 때만 금액 입력칸 표시 */}
           {!afterConsult && (
             <Row $align="center" $gap={10}>
               <TextField
                 placeholder="예) 100,000"
                 value={amount}
-                /* ✅ 숫자만 입력되도록 onChange에서 비숫자 제거 */
                 onChange={e => {
                   const onlyDigits = e.target.value.replace(/\D/g, '');
                   setAmount(onlyDigits);
                 }}
                 width="200px"
-                inputMode="numeric" // (가능하면) 모바일 숫자 키패드
-                pattern="[0-9]*" // (가능하면) 숫자만
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
               <Body2_600>원</Body2_600>
             </Row>
           )}
 
-          {/* ✅ 체크 아이콘 토글 */}
           <CheckRow onClick={() => setAfterConsult(v => !v)} style={{ marginTop: '6px' }}>
             <CheckIcon src={afterConsult ? iconCheckFilled : iconCheckNotFilled} />
             <Body2_800>상담 후 결정</Body2_800>
@@ -313,6 +228,7 @@ function QuoteSheet({ request, onClose }) {
 
         <Column $gap={8}>
           <Caption1_800>내용</Caption1_800>
+          {/* 최대 300자 안내는 Textarea placeholder로 유지 */}
           <Textarea
             placeholder="견적 내용을 상세하게 작성해 주세요."
             maxLength={300}
@@ -332,7 +248,6 @@ function QuoteSheet({ request, onClose }) {
             }}
           />
         </SheetFooter>
-        {/* 확인 모달 */}
         <Modal
           isOpen={confirmOpen}
           onClose={() => setConfirmOpen(false)}
@@ -370,9 +285,8 @@ function QuoteSheet({ request, onClose }) {
                 text="네, 보낼게요"
                 width="130px"
                 onClick={() => {
-                  // TODO: 실제 전송 로직 연동 지점
+                  // TODO: 실제 전송 로직 연결지점 (POST 견적 생성 API 등)
                   setConfirmOpen(false);
-                  // onClose(); // 전송 후 시트까지 닫고 싶으면 주석 해제
                 }}
               />
             </ConfirmActions>
@@ -384,7 +298,7 @@ function QuoteSheet({ request, onClose }) {
 }
 
 /* ============================
- * 스타일
+ * 스타일 (기존 유지)
  * ============================ */
 
 const Container = styled.div`
@@ -393,13 +307,12 @@ const Container = styled.div`
   height: 100%;
 `;
 
-/* 좌측 상세: Overlay 열리면 살짝 왼쪽으로 이동 */
 const LeftSection = styled.div`
   width: ${({ $shifted }) => ($shifted ? '50%' : '60%')};
   height: 100%;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease; /* ✅ width 변화로 부드럽게 줄어듦 */
+  transition: width 0.3s ease;
 `;
 
 const RightSection = styled.div`
@@ -412,7 +325,6 @@ const RightSection = styled.div`
   flex-direction: column;
 `;
 
-/* 좌측 상세 박스 */
 const RequestDetailBox = styled.div`
   padding: 24px 30px;
   width: 100%;
@@ -422,7 +334,6 @@ const RequestDetailBox = styled.div`
   overflow: hidden;
 `;
 
-/* 이미지 그리드: 오른쪽부터 차오르게 */
 const ImageGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 80px);
@@ -455,7 +366,6 @@ const DescriptionBox = styled.div`
   background: ${color('grayscale.100')};
 `;
 
-/* 우측 리스트 스크롤 */
 const ListScroll = styled.div`
   margin-top: 8px;
   padding-right: 8px;
@@ -495,7 +405,6 @@ const IconChevronBtn = styled.button`
   }
 `;
 
-/* 빈 상태 */
 const RightEmptyPanel = styled.div`
   flex: 1;
   display: flex;
@@ -516,7 +425,6 @@ const EmptyTitle = styled.div`
   color: ${color('grayscale.500')};
 `;
 
-/* 타이포 */
 const Title = styled.div`
   ${typo('h3')};
   color: ${color('black')};
@@ -560,13 +468,11 @@ const Caption1_800 = styled.div`
   color: ${color('grayscale.800')};
 `;
 
-/* ========= Overlay에 올라갈 오른쪽 시트 ========= */
 const SheetPanel = styled.div`
-  /* OverlayRoot의 오른쪽 끝에 맞춰 가득 차는 패널 */
   width: 49%;
   height: 100%;
-  background: #fff; /* 🔹 흰 배경은 패널에만 */
-  border-radius: 30px 0 0 30px; /* 헤더쪽 곡률과 맞추면 자연스러움 */
+  background: #fff;
+  border-radius: 30px 0 0 30px;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.06);
   padding: 0px 60px;
   display: flex;
@@ -629,10 +535,6 @@ const GhostButton = styled.button`
   white-space: nowrap;
 `;
 
-/* ============================
- * 모달 스타일
- * ============================ */
-
 const ConfirmRow = styled.div`
   display: flex;
   justify-content: space-between;
@@ -640,7 +542,6 @@ const ConfirmRow = styled.div`
   gap: 10px;
   ${({ $col }) => $col && 'flex-direction: column;'}
 `;
-
 const ConfirmTextBox = styled.div`
   ${typo('body2')};
   color: ${color('black')};
