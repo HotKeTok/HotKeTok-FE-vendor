@@ -213,6 +213,7 @@ const BackgroundContainer = styled.div`
   background-position: center;
   position: relative;
 `;
+
 const Content = styled.div`
   display: flex;
   justify-content: space-between;

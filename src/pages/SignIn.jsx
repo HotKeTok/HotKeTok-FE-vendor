@@ -8,7 +8,7 @@ export default function SignIn() {
   const nav = useNavigate();
   const [submitting, setSubmitting] = useState(false);
 
-  // 응답 파싱
+  // ✅ 응답 파싱
   const extractFromLoginResponse = raw => {
     const maybeAxiosPayload = raw?.data;
     const looksLikePayload =
@@ -38,7 +38,7 @@ export default function SignIn() {
     return { isSuccess, accessToken, refreshToken, role, onBoardingStageFlag, payload, envelope };
   };
 
-  // 에러 분류기: 서버 메시지/상태코드로 id/비번/기타 구분
+  // ✅ 에러 분류기
   const classifyLoginError = ({ status, message = '' }) => {
     const msg = String(message || '').toLowerCase();
     if (status === 404 || /존재하지 않|not exist|not found|아이디|계정/.test(msg)) return 'id';
@@ -51,9 +51,9 @@ export default function SignIn() {
     return 'other';
   };
 
+  // ✅ 로그인 핸들러
   const onSubmit = async ({ logInId, password }) => {
     if (!logInId?.trim() || !password) {
-      // 템플릿에서 자체 검증하므로 여기선 형식만 맞춰 반환
       return { success: false, reason: 'other', message: '아이디와 비밀번호를 입력해주세요.' };
     }
 
@@ -68,6 +68,7 @@ export default function SignIn() {
         const reason = classifyLoginError({ status: payload?.status, message: payload?.message });
         return { success: false, reason, message: payload?.message || '' };
       }
+
       if (!accessToken) {
         return {
           success: false,
@@ -76,12 +77,18 @@ export default function SignIn() {
         };
       }
 
+      // ✅ 토큰 및 역할 저장
       setTokens({ accessToken, refreshToken: refreshToken ?? '' });
       setRole(role || 'VENDOR');
 
-      // 네비게이션
-      if (onBoardingStageFlag === false) nav('/init-process');
-      else nav('/');
+      // ✅ 네비게이션 조건
+      if (role === 'NONE') {
+        nav('/welcome');
+      } else if (onBoardingStageFlag === false) {
+        nav('/init-process');
+      } else {
+        nav('/');
+      }
 
       return { success: true };
     } catch (e) {

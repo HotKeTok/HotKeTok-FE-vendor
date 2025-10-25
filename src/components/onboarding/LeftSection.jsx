@@ -3,16 +3,30 @@ import styled, { keyframes, css } from 'styled-components';
 import { color, typo } from '../../styles/tokens';
 
 import iconLogo from '../../assets/common/icon-service-logo-name.svg';
+import iconRepairLogo from '../../assets/common/icon-repair-logo.svg';
 import iconHashtag1 from '../../assets/common/icon-hashtag-1.svg';
 import iconHashtag2 from '../../assets/common/icon-hashtag-2.svg';
 import iconHashtag3 from '../../assets/common/icon-hashtag-3.svg';
 
-export default function LeftSection({ maintext, subtext }) {
+export default function LeftSection({
+  maintext,
+  subtext,
+  textcolor = 'white',
+  repairlogo = false,
+  mainMarginTop = '90px',
+  mainMarginBottom = '40px',
+}) {
   return (
     <Container>
-      <IconLogo src={iconLogo} />
-      <WelcomeText>{maintext}</WelcomeText>
-      <H2Text>{subtext}</H2Text>
+      <IconLogo src={repairlogo ? iconRepairLogo : iconLogo} />
+      <WelcomeText
+        $textcolor={textcolor}
+        $marginTop={mainMarginTop}
+        $marginBottom={mainMarginBottom}
+      >
+        {maintext}
+      </WelcomeText>
+      <H2Text $textcolor={textcolor}>{subtext}</H2Text>
 
       <HashtagStack>
         <Tag1 src={iconHashtag1} />
@@ -31,7 +45,6 @@ const fadeIn = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-/* 부유(둥둥) 애니메이션 */
 const float = keyframes`
   0%   { transform: translateY(0); }
   50%  { transform: translateY(-6px); }
@@ -49,9 +62,9 @@ const IconLogo = styled.img`
 
 const WelcomeText = styled.div`
   ${typo('webh1')};
-  color: ${color('white')};
-  margin-top: 90px;
-  margin-bottom: 40px;
+  color: ${({ $textcolor }) => color($textcolor) || $textcolor};
+  margin-top: ${({ $marginTop }) => $marginTop};
+  margin-bottom: ${({ $marginBottom }) => $marginBottom};
   white-space: pre-line;
   opacity: 0;
   animation: ${fadeIn} 0.8s ease forwards;
@@ -60,7 +73,7 @@ const WelcomeText = styled.div`
 
 const H2Text = styled.div`
   ${typo('h2')};
-  color: ${color('white')};
+  color: ${({ $textcolor }) => color($textcolor) || $textcolor};
   margin-bottom: 40px;
   white-space: pre-line;
   opacity: 0;
@@ -83,14 +96,12 @@ const baseTag = css`
   animation: ${fadeIn} 0.8s ease forwards;
 `;
 
-/* 각각 약간 다른 부유감 + 시간차 */
 const Tag1 = styled.img`
   ${baseTag};
   top: 0;
   left: 0;
   z-index: 3;
   animation-delay: 0.5s;
-  /* 등장 이후 천천히 둥둥 */
   animation: ${fadeIn} 0.8s ease forwards 0.5s, ${float} 4.2s ease-in-out infinite 1.3s;
 `;
 

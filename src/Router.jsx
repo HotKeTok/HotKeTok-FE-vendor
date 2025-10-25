@@ -12,6 +12,7 @@ import MyPage from './pages/MyPage';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import TotalRepair from './pages/TotalRepair';
+import Welcome from './pages/Welcome';
 
 const AppLayout = () => {
   const { pathname } = useLocation();
@@ -40,6 +41,7 @@ function AppRouter() {
         </Route>
 
         {/* Layout이 필요 없는 페이지 */}
+        <Route path="/welcome" element={<Welcome />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/init-process" element={<InitProcess />} />

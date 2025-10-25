@@ -1,6 +1,7 @@
 import api from './client';
+import { getAccessToken } from '../utils/auth';
 
-// 수리업체 등록
+// POST : 수리업체 등록
 export async function apiVendorRegister({ data, file, images }) {
   const mainFile = file instanceof File ? file : file?.file instanceof File ? file.file : null;
   if (!mainFile || mainFile.size === 0) {
@@ -32,4 +33,57 @@ export async function apiVendorRegister({ data, file, images }) {
 
   const { data: res } = await api.post('/vendor-service/register', form);
   return res;
+}
+
+// GET : 수리업체가 받은 수리 요청 목록 조회
+export async function apiFetchVendorRequests() {
+  const token = getAccessToken();
+
+  const { data } = await api.get('/vendor-service/request', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  const success =
+    data?.isSuccess === true ||
+    data?.success === true || // ✅ 서버가 success로 내려주는 케이스
+    data?.code === 'COMMON200' ||
+    data?.status === 200;
+
+  // ✅ result 또는 data 어느 쪽이든 지원
+  const payload = data?.result ?? data?.data ?? null;
+
+  return {
+    success,
+    raw: data ?? null,
+    result: payload, // ← 템플릿에서 그대로 result.request 사용 가능
+    message: data?.message ?? '',
+  };
+}
+
+// GET : 수리 요청 상세 조회
+export async function apiFetchVendorRequestDetail(requestId) {
+  if (!requestId && requestId !== 0) {
+    throw new Error('상세 조회를 위한 requestId가 필요합니다.');
+  }
+  const token = getAccessToken();
+
+  const { data } = await api.get('/vendor-service/request-detail', {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { requestId }, // ✅ 쿼리 파라미터
+  });
+
+  const success =
+    data?.isSuccess === true ||
+    data?.success === true ||
+    data?.code === 'COMMON200' ||
+    data?.status === 200;
+
+  const payload = data?.result ?? data?.data ?? null;
+
+  return {
+    success,
+    raw: data ?? null,
+    result: payload, // { category, address, estimateTime, ... }
+    message: data?.message ?? '',
+  };
 }
