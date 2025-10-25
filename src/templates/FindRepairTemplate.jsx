@@ -1,11 +1,10 @@
 // src/templates/FindRepairTemplate.jsx
-import React, { useMemo, useState, useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Column, Row } from '../styles/flex';
 import { color, typo } from '../styles/tokens';
 
 import Button from '../components/common/Button';
-import TextField from '../components/common/TextField';
 import Modal from '../components/common/Modal';
 import ModalImageSlider from '../components/common/ModalImageSlider';
 
@@ -17,34 +16,20 @@ import iconSad from '../assets/common/icon-sad.svg';
 import iconCheckFilled from '../assets/common/icon-check-filled.svg';
 import iconCheckNotFilled from '../assets/common/icon-check-not-filled.svg';
 
-/* ============================
- * 메인 (UI 전용)
- * ============================ */
-export default function FindRepairTemplate({ requests = [] }) {
-  // 🔹 선택/뷰어 등 UI 상태만 관리
-  const [selectedId, setSelectedId] = useState(requests[0]?.id ?? null);
-  const [viewerOpen, setViewerOpen] = useState(false);
-  const [viewerIndex, setViewerIndex] = useState(0);
-
-  // 요청 목록이 바뀔 때 첫 항목으로 선택 초기화(최초 로딩 포함)
-  useEffect(() => {
-    if (!requests || requests.length === 0) {
-      setSelectedId(null);
-    } else if (!selectedId || !requests.some(r => r.id === selectedId)) {
-      setSelectedId(requests[0].id);
-    }
-  }, [requests]); // eslint-disable-line react-hooks/exhaustive-deps
-
+export default function FindRepairTemplate({
+  requests = [],
+  selectedId = null,
+  onSelect = () => {},
+  selectedDetail = null,
+  loadingDetail = false,
+}) {
   const { isOpen: overlayOpen, setOverlayContent, clearOverlay } = useContext(OverlayContext);
-
-  const selected = useMemo(
-    () => requests.find(r => r.id === selectedId) || null,
-    [requests, selectedId]
-  );
+  const [viewerOpen, setViewerOpen] = React.useState(false);
+  const [viewerIndex, setViewerIndex] = React.useState(0);
 
   const openQuoteSheet = () => {
-    if (!selected) return;
-    setOverlayContent(<QuoteSheet request={selected} onClose={clearOverlay} />);
+    if (!selectedDetail) return;
+    setOverlayContent(<QuoteSheet request={selectedDetail} onClose={clearOverlay} />);
   };
 
   return (
@@ -52,38 +37,42 @@ export default function FindRepairTemplate({ requests = [] }) {
       <Row $gap={16} style={{ height: '100%', position: 'relative' }}>
         {/* 좌측 상세 */}
         <LeftSection $shifted={overlayOpen}>
-          {selected ? (
+          {loadingDetail ? (
+            <RequestDetailBox>
+              <Title>불러오는 중…</Title>
+            </RequestDetailBox>
+          ) : selectedDetail ? (
             <RequestDetailBox>
               <Row $justify={'space-between'} $align={'center'}>
-                <Title>{selected.title}</Title>
+                <Title>{selectedDetail.title}</Title>
                 {!overlayOpen && (
                   <Button text="견적 보내기" width="136px" onClick={openQuoteSheet} />
                 )}
               </Row>
 
               <Column $gap={10}>
-                <Body2_black style={{ marginBottom: '24px' }}>{selected.address}</Body2_black>
+                <Body2_black style={{ marginBottom: '24px' }}>{selectedDetail.address}</Body2_black>
 
                 <Row $justify={'space-between'}>
                   <Button2_black>수리 희망 날짜</Button2_black>
-                  <Body2_600>{selected.preferredDate}</Body2_600>
+                  <Body2_600>{selectedDetail.preferredDate}</Body2_600>
                 </Row>
 
                 <Row $justify={'space-between'}>
                   <Button2_black>비용 부담</Button2_black>
-                  <Body2_600>{selected.costPayer}</Body2_600>
+                  <Body2_600>{selectedDetail.costPayer}</Body2_600>
                 </Row>
 
                 <Row $justify={'space-between'}>
                   <Button2_black>전화번호</Button2_black>
-                  <Body2_600>{selected.phone}</Body2_600>
+                  <Body2_600>{selectedDetail.phone}</Body2_600>
                 </Row>
 
                 <Row $justify={'space-between'}>
                   <Button2_black>증상 사진</Button2_black>
-                  {selected.images.length > 0 ? (
+                  {selectedDetail.images?.length > 0 ? (
                     <ImageGrid>
-                      {selected.images.map((src, idx) => (
+                      {selectedDetail.images.map((src, idx) => (
                         <Thumb
                           key={idx}
                           onClick={() => {
@@ -102,7 +91,7 @@ export default function FindRepairTemplate({ requests = [] }) {
 
                 <Column $gap={8} style={{ marginTop: '8px' }}>
                   <Button2_black>증상 설명</Button2_black>
-                  <DescriptionBox>{selected.description}</DescriptionBox>
+                  <DescriptionBox>{selectedDetail.description}</DescriptionBox>
                 </Column>
               </Column>
             </RequestDetailBox>
@@ -115,21 +104,17 @@ export default function FindRepairTemplate({ requests = [] }) {
 
         {/* 이미지 슬라이더 */}
         <ModalImageSlider
-          title={selected?.title || ''}
+          title={selectedDetail?.title || ''}
           isOpen={viewerOpen}
           onClose={() => setViewerOpen(false)}
-          imageUrls={selected?.images || []}
+          imageUrls={selectedDetail?.images || []}
           startIndex={viewerIndex}
         />
 
         {/* 우측 리스트 */}
         {!overlayOpen && (
           <RightSection>
-            <RequestList
-              requests={requests}
-              selectedId={selectedId}
-              onSelect={id => setSelectedId(id)}
-            />
+            <RequestList requests={requests} selectedId={selectedId} onSelect={onSelect} />
           </RightSection>
         )}
       </Row>
@@ -137,9 +122,7 @@ export default function FindRepairTemplate({ requests = [] }) {
   );
 }
 
-/* ============================
- * 우측 리스트
- * ============================ */
+/* 우측 리스트 */
 function RequestList({ requests, selectedId, onSelect }) {
   return (
     <Column style={{ height: '100%' }}>
@@ -161,7 +144,7 @@ function RequestList({ requests, selectedId, onSelect }) {
                   <Column $gap={6}>
                     <Row $align={'center'} $justify={'space-between'}>
                       <Row $align={'center'}>
-                        <CardTitle>{req.title}</CardTitle>{' '}
+                        <CardTitle>{req.title}</CardTitle>
                         <IconChevronBtn aria-label="상세 보기">
                           <img src={iconChevron} alt="" />
                         </IconChevronBtn>
@@ -180,14 +163,12 @@ function RequestList({ requests, selectedId, onSelect }) {
   );
 }
 
-/* ============================
- * 견적서 작성 시트 (Overlay)
- * ============================ */
+/* 견적서 작성 시트 (Overlay) — 기존 그대로 */
 function QuoteSheet({ request, onClose }) {
-  const [amount, setAmount] = useState('');
-  const [afterConsult, setAfterConsult] = useState(false);
-  const [content, setContent] = useState('');
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [amount, setAmount] = React.useState('');
+  const [afterConsult, setAfterConsult] = React.useState(false);
+  const [content, setContent] = React.useState('');
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   const isActive = (afterConsult || amount.trim() !== '') && content.trim() !== '';
   return (
@@ -205,21 +186,15 @@ function QuoteSheet({ request, onClose }) {
           <Caption1_800>금액</Caption1_800>
           {!afterConsult && (
             <Row $align="center" $gap={10}>
-              <TextField
+              <input
                 placeholder="예) 100,000"
                 value={amount}
-                onChange={e => {
-                  const onlyDigits = e.target.value.replace(/\D/g, '');
-                  setAmount(onlyDigits);
-                }}
-                width="200px"
-                inputMode="numeric"
-                pattern="[0-9]*"
+                onChange={e => setAmount(e.target.value.replace(/\D/g, ''))}
+                style={{ width: 200 }}
               />
               <Body2_600>원</Body2_600>
             </Row>
           )}
-
           <CheckRow onClick={() => setAfterConsult(v => !v)} style={{ marginTop: '6px' }}>
             <CheckIcon src={afterConsult ? iconCheckFilled : iconCheckNotFilled} />
             <Body2_800>상담 후 결정</Body2_800>
@@ -228,7 +203,6 @@ function QuoteSheet({ request, onClose }) {
 
         <Column $gap={8}>
           <Caption1_800>내용</Caption1_800>
-          {/* 최대 300자 안내는 Textarea placeholder로 유지 */}
           <Textarea
             placeholder="견적 내용을 상세하게 작성해 주세요."
             maxLength={300}
@@ -248,6 +222,7 @@ function QuoteSheet({ request, onClose }) {
             }}
           />
         </SheetFooter>
+
         <Modal
           isOpen={confirmOpen}
           onClose={() => setConfirmOpen(false)}
@@ -281,14 +256,7 @@ function QuoteSheet({ request, onClose }) {
 
             <ConfirmActions>
               <ConfirmCancel onClick={() => setConfirmOpen(false)}>아니요</ConfirmCancel>
-              <Button
-                text="네, 보낼게요"
-                width="130px"
-                onClick={() => {
-                  // TODO: 실제 전송 로직 연결지점 (POST 견적 생성 API 등)
-                  setConfirmOpen(false);
-                }}
-              />
+              <Button text="네, 보낼게요" width="130px" onClick={() => setConfirmOpen(false)} />
             </ConfirmActions>
           </Column>
         </Modal>
@@ -297,16 +265,12 @@ function QuoteSheet({ request, onClose }) {
   );
 }
 
-/* ============================
- * 스타일 (기존 유지)
- * ============================ */
-
+/* ===== 스타일 (기존 유지) ===== */
 const Container = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
 `;
-
 const LeftSection = styled.div`
   width: ${({ $shifted }) => ($shifted ? '50%' : '60%')};
   height: 100%;
@@ -314,7 +278,6 @@ const LeftSection = styled.div`
   flex-direction: column;
   transition: width 0.3s ease;
 `;
-
 const RightSection = styled.div`
   width: 40%;
   height: 97%;
@@ -324,16 +287,14 @@ const RightSection = styled.div`
   display: flex;
   flex-direction: column;
 `;
-
 const RequestDetailBox = styled.div`
   padding: 24px 30px;
   width: 100%;
-  background-color: ${color('grayscale.100')};
+  background: ${color('grayscale.100')};
   border: 1px solid ${color('grayscale.200')};
   border-radius: 20px;
   overflow: hidden;
 `;
-
 const ImageGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 80px);
@@ -358,14 +319,13 @@ const Thumb = styled.div`
   }
 `;
 const DescriptionBox = styled.div`
-  ${typo('body2')}
+  ${typo('body2')};
   color: ${color('black')};
   padding: 13px 15px;
   border-radius: 6px;
   border: 1px solid ${color('grayscale.200')};
   background: ${color('grayscale.100')};
 `;
-
 const ListScroll = styled.div`
   margin-top: 8px;
   padding-right: 8px;
@@ -384,7 +344,6 @@ const RequestCard = styled.div`
     border-color: ${color('brand.400')};
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   }
-
   &:active {
     transform: translateY(1px);
   }
@@ -404,7 +363,6 @@ const IconChevronBtn = styled.button`
     height: auto;
   }
 `;
-
 const RightEmptyPanel = styled.div`
   flex: 1;
   display: flex;
@@ -424,7 +382,6 @@ const EmptyTitle = styled.div`
   ${typo('body1')};
   color: ${color('grayscale.500')};
 `;
-
 const Title = styled.div`
   ${typo('h3')};
   color: ${color('black')};
@@ -467,23 +424,19 @@ const Caption1_800 = styled.div`
   ${typo('caption1')};
   color: ${color('grayscale.800')};
 `;
-
 const SheetPanel = styled.div`
   width: 49%;
   height: 100%;
   background: #fff;
   border-radius: 30px 0 0 30px;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.06);
-  padding: 0px 60px;
+  padding: 0 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  animation: ${keyframes`
-    from { transform: translateX(40px); opacity: 0; }
-    to   { transform: translateX(0);    opacity: 1; }
-  `} 0.3s ease-out both;
+  animation: ${keyframes`from{transform:translateX(40px);opacity:0;}to{transform:translateX(0);opacity:1;}`}
+    0.3s ease-out both;
 `;
-
 const CheckRow = styled.button`
   display: inline-flex;
   align-items: center;
@@ -495,7 +448,6 @@ const CheckRow = styled.button`
   text-align: left;
 `;
 const CheckIcon = styled.img``;
-
 const Textarea = styled.textarea`
   ${typo('body2')};
   color: ${color('black')};
@@ -516,7 +468,6 @@ const CharCount = styled.div`
   color: ${color('grayscale.400')};
   text-align: right;
 `;
-
 const SheetFooter = styled.div`
   margin-top: 30px;
   display: flex;
@@ -534,7 +485,6 @@ const GhostButton = styled.button`
   cursor: pointer;
   white-space: nowrap;
 `;
-
 const ConfirmRow = styled.div`
   display: flex;
   justify-content: space-between;
