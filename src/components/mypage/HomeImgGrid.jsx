@@ -17,10 +17,14 @@ export default function HomeImgGrid({ images, setProfileEditData, profileEditDat
       return;
     }
 
-    const newImageUrls = files.map(file => URL.createObjectURL(file));
-    // todo: 서버 url 받아오기 (현재는 로컬로 처리)
+    const newImageUrls = files.map(file => {
+      const url = URL.createObjectURL(file);
+      return { name: file.name, url: url, file: file };
+    });
     setProfileEditData({ ...profileEditData, introductionImage: [...images, ...newImageUrls] });
   };
+
+  const imageList = images || [];
 
   return (
     <ImageGridContainer>
@@ -37,9 +41,12 @@ export default function HomeImgGrid({ images, setProfileEditData, profileEditDat
           />
         </ImageUploadLabel>
       )}
-      {images.map((src, index) => (
+      {imageList.map((imageItem, index) => (
         <ImageWrapper key={index}>
-          <Image src={src} alt={`소개 사진 ${index + 1}`} />
+          <Image
+            src={imageItem.url || imageItem} // 객체면 imageItem.url, 문자열이면 imageItem
+            alt={`소개 사진 ${index + 1}`}
+          />
           <DeleteButton onClick={() => handleImageDelete(index)}>
             <CloseIcn />
           </DeleteButton>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SignInTemplate from '../templates/SignInTemplate';
 import { apiLogin } from '../api/auth-service';
 import { setTokens, setRole } from '../utils/auth';
-import { useAuthStore } from '../store/useAuthStore';
+import useAuthStore from '../store/useAuthStore';
 
 export default function SignIn() {
   const nav = useNavigate();

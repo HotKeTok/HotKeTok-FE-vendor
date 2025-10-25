@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import Modal from '../common/Modal';
 import styled, { css } from 'styled-components';
 import { color, typo } from '../../styles/tokens';
@@ -13,15 +13,17 @@ import ArrowDownIcn from '../../assets/common/icon-arrow-down.svg?react';
 import { formatPhone } from '../../utils/format';
 import { daysOfWeek } from '../../constants/Date';
 import { useMemo } from 'react';
+import { MyPageContext } from '../../context/MyPageData';
 
 export default function ModalProfileInfo({
   isOpen,
   onClose,
-  myPageData, // 편집 전 불변하는 데이터
   onPatchProfileInfo,
   profileEditData, // 편집 데이터
   setProfileEditData, // 편집 데이터 설정 함수
 }) {
+  const myPageData = useContext(MyPageContext).data;
+
   const { introduction, phoneNumber, runningTime, introductionImage } = profileEditData;
   const { openingTime, closingTime, working_day_of_week } = runningTime;
   const [initialData, setInitialData] = useState(myPageData);
@@ -59,6 +61,16 @@ export default function ModalProfileInfo({
     ? daysOfWeek.filter(day => !working_day_of_week.includes(day))
     : [];
 
+  let profileImageUrl = null;
+  if (typeof profileEditData.profileImage === 'string') {
+    profileImageUrl = profileEditData.profileImage; // 서버 url
+  } else if (
+    typeof profileEditData.profileImage === 'object' &&
+    profileEditData.profileImage !== null
+  ) {
+    profileImageUrl = profileEditData.profileImage.url; // 파일 객체
+  }
+
   return (
     <Modal
       isOpen={isOpen}
@@ -71,8 +83,8 @@ export default function ModalProfileInfo({
         {/* 상단 프로필 영역 (프로필 이미지, 이름, 카테고리) */}
         <Column $gap={10} $align="center" style={{ width: '100%' }}>
           <ProfileImageContainer>
-            {profileEditData.profileImg ? (
-              <ProfileImg src={profileEditData.profileImg} alt="프로필 이미지" />
+            {profileImageUrl ? (
+              <ProfileImg src={profileImageUrl} alt="프로필 이미지" />
             ) : (
               <ProfileDefaultIcn />
             )}
@@ -86,8 +98,15 @@ export default function ModalProfileInfo({
                 const file = e.target.files[0];
                 if (file) {
                   const imageUrl = URL.createObjectURL(file);
-                  // todo: 실제 서버 url
-                  setProfileEditData({ ...profileEditData, profileImg: imageUrl });
+                  console.log(file.name, imageUrl, file);
+                  setProfileEditData({
+                    ...profileEditData,
+                    profileImage: {
+                      file: file,
+                      name: file.name,
+                      url: imageUrl,
+                    },
+                  });
                 }
               }}
             />

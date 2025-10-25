@@ -2,6 +2,7 @@ import OptionsMenu from '../common/OptionsMenu';
 import styled from 'styled-components';
 import { typo, color } from '../../styles/tokens';
 import { Row } from '../../styles/flex';
+import { formatDateToYMD } from '../../utils/date';
 
 export default function NewsItem({ news, onEdit, onDelete, style }) {
   const menuOptions = [
@@ -14,7 +15,7 @@ export default function NewsItem({ news, onEdit, onDelete, style }) {
       <Row $justify="space-between" align="center">
         <Title>{news.title}</Title>
         <Row $align="center" $gap={10}>
-          <Date>{news.date}</Date>
+          <Date>{formatDateToYMD(news.createdAt)}</Date>
           <OptionsMenu options={menuOptions} />
         </Row>
       </Row>

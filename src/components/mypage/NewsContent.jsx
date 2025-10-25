@@ -29,13 +29,20 @@ export default function NewsContent({ newsData, onEdit, onDelete }) {
   // 수정 모달 오픈
   const handleEditBtnClick = newsId => {
     setSelectedNewsId(newsId);
-    setNewsInput(newsData.find(item => item.id === newsId) || { title: '', content: '' });
+    setNewsInput(newsData.find(item => item.newsId === newsId) || { title: '', content: '' });
     setModal('register');
   };
 
   // 실제 등록/ 수정
   const handleRegisterBtnClick = () => {
-    onEdit(selectedNewsId);
+    let param = {
+      title: newsInput.title,
+      content: newsInput.content,
+    };
+    if (selectedNewsId) {
+      param.newsId = selectedNewsId;
+    }
+    onEdit(param);
     // 수정이라면 id, 등록이라면 null
     handleModalClose();
   };
@@ -46,6 +53,10 @@ export default function NewsContent({ newsData, onEdit, onDelete }) {
     setModal(null);
   };
 
+  const sortedNewsData = [...newsData].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
   return (
     <Column>
       {modal === 'register' && (
@@ -54,9 +65,9 @@ export default function NewsContent({ newsData, onEdit, onDelete }) {
           onClose={handleModalClose}
           isEdit={!!selectedNewsId}
           initialData={
-            newsData.find(item => item.id === selectedNewsId) || { title: '', content: '' }
+            newsData.find(item => item.newsId === selectedNewsId) || { title: '', content: '' }
           }
-          editData={newsData.find(item => item.id === selectedNewsId)}
+          editData={newsData.find(item => item.newsId === selectedNewsId)}
           newsInput={newsInput}
           setNewsInput={setNewsInput}
           onRegister={handleRegisterBtnClick}
@@ -76,12 +87,12 @@ export default function NewsContent({ newsData, onEdit, onDelete }) {
         <CustomButton onClick={() => setModal('register')}>글 작성하기</CustomButton>
       </RightBtn>
       <Column>
-        {newsData.map((news, index) => (
+        {sortedNewsData.map((news, index) => (
           <NewsItem
             key={index}
             news={news}
-            onEdit={() => handleEditBtnClick(news.id)}
-            onDelete={() => handleDeleteBtnClick(news.id)}
+            onEdit={() => handleEditBtnClick(news.newsId)}
+            onDelete={() => handleDeleteBtnClick(news.newsId)}
             style={{ borderBottom: index === newsData.length - 1 ? 0 : '1px solid #eee' }}
           />
         ))}

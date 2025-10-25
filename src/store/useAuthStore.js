@@ -3,14 +3,16 @@ import { persist, subscribeWithSelector } from 'zustand/middleware';
 
 const initialState = {
   userId: '',
+  vendorId: '',
 };
 
-export const useAuthStore = create(
+const useAuthStore = create(
   subscribeWithSelector(
     persist(
       set => ({
         ...initialState,
         setUserId: userId => set({ userId }),
+        setVendorId: vendorId => set({ vendorId }),
         clearAuth: () => set({ ...initialState }),
       }),
       {
@@ -19,3 +21,5 @@ export const useAuthStore = create(
     )
   )
 );
+
+export default useAuthStore;
