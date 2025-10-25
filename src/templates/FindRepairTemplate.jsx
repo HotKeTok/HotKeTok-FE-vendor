@@ -20,6 +20,8 @@ export default function FindRepairTemplate({
   onSelect = () => {},
   selectedDetail = null,
   loadingDetail = false,
+  onSubmitEstimate = async () => {},
+  submittingEstimate = false,
 }) {
   const { isOpen: overlayOpen, setOverlayContent, clearOverlay } = useContext(OverlayContext);
   const [viewerOpen, setViewerOpen] = React.useState(false);
@@ -27,7 +29,14 @@ export default function FindRepairTemplate({
 
   const openQuoteSheet = () => {
     if (!selectedDetail) return;
-    setOverlayContent(<QuoteSheet request={selectedDetail} onClose={clearOverlay} />);
+    setOverlayContent(
+      <QuoteSheet
+        request={selectedDetail}
+        onClose={clearOverlay}
+        onSubmit={onSubmitEstimate}
+        submitting={submittingEstimate}
+      />
+    );
   };
 
   return (

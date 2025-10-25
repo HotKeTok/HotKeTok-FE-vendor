@@ -1,28 +1,42 @@
 // src/components/find-repair/QuoteSheet.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { color, typo } from '../../styles/tokens';
 
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import TextField from '../../components/common/TextField';
+import { formatWithCommas } from '../../utils/format';
 
 import iconCheckFilled from '../../assets/common/icon-check-filled.svg';
 import iconCheckNotFilled from '../../assets/common/icon-check-not-filled.svg';
 
-/**
- * 견적서 작성 시트 (Overlay에 렌더)
- * props:
- *  - request: { title, address, preferredDate, ... }  // 상세에서 내려온 선택 항목
- *  - onClose: () => void                               // 시트 닫기
- */
-export default function QuoteSheet({ request, onClose }) {
-  const [amount, setAmount] = React.useState('');
-  const [afterConsult, setAfterConsult] = React.useState(false);
-  const [content, setContent] = React.useState('');
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
+export default function QuoteSheet({ request, onClose, onSubmit, submitting = false }) {
+  const [amountDigits, setAmountDigits] = useState('');
+  const [afterConsult, setAfterConsult] = useState(false);
+  const [content, setContent] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const isActive = (afterConsult || amount.trim() !== '') && content.trim() !== '';
+  const displayAmount = formatWithCommas(amountDigits);
+  const isActive = (afterConsult || amountDigits.trim() !== '') && content.trim() !== '';
+
+  const submitNow = async () => {
+    try {
+      setErrorMsg('');
+      const ok = await onSubmit?.({
+        estimatePriceDigits: amountDigits,
+        decisionLater: afterConsult,
+        comment: content.trim(),
+      });
+      if (ok !== false) {
+        setConfirmOpen(false);
+        onClose?.();
+      }
+    } catch (e) {
+      setErrorMsg(e?.message || '전송 중 오류가 발생했어요.');
+    }
+  };
 
   return (
     <SheetPanel>
@@ -41,9 +55,10 @@ export default function QuoteSheet({ request, onClose }) {
             <Row $align="center" $gap={10}>
               <TextField
                 placeholder="예) 100,000"
-                value={amount}
-                onChange={e => setAmount(e.target.value.replace(/\D/g, ''))}
+                value={displayAmount}
+                onChange={e => setAmountDigits(e.target.value.replace(/\D/g, ''))}
                 style={{ width: 200 }}
+                inputMode="numeric"
               />
               <Body2_600>원</Body2_600>
             </Row>
@@ -63,16 +78,19 @@ export default function QuoteSheet({ request, onClose }) {
             onChange={e => setContent(e.target.value)}
           />
           <CharCount>{content.length}/300</CharCount>
+          {errorMsg && <ErrorText>{errorMsg}</ErrorText>}
         </Column>
 
         <SheetFooter>
-          <GhostButton onClick={onClose}>취소</GhostButton>
+          <GhostButton onClick={onClose} disabled={submitting}>
+            취소
+          </GhostButton>
           <Button
-            text="견적서 보내기"
+            text={submitting ? '전송 중…' : '견적서 보내기'}
             width="160px"
-            active={isActive}
+            active={isActive && !submitting}
             onClick={() => {
-              if (isActive) setConfirmOpen(true);
+              if (isActive && !submitting) setConfirmOpen(true);
             }}
           />
         </SheetFooter>
@@ -84,10 +102,11 @@ export default function QuoteSheet({ request, onClose }) {
           style={{ width: 450, borderRadius: 12, padding: '24px 30px' }}
         >
           <Column $gap={30}>
-            <Column $gap={4} $align={'start'}>
+            <Column $gap={4} $align="start">
               <Title>견적서를 보낼까요?</Title>
               <Body2_black>{request?.address ?? ''}</Body2_black>
             </Column>
+
             <Column $gap={12}>
               <ConfirmRow>
                 <Button2_black>수리 분야</Button2_black>
@@ -100,7 +119,7 @@ export default function QuoteSheet({ request, onClose }) {
               <ConfirmRow>
                 <Button2_black>금액</Button2_black>
                 <Body2_600>
-                  {afterConsult ? '상담 후 결정' : `${Number(amount || 0).toLocaleString()}원`}
+                  {afterConsult ? '상담 후 결정' : `${formatWithCommas(amountDigits)}원`}
                 </Body2_600>
               </ConfirmRow>
               <ConfirmRow $col>
@@ -110,8 +129,14 @@ export default function QuoteSheet({ request, onClose }) {
             </Column>
 
             <ConfirmActions>
-              <ConfirmCancel onClick={() => setConfirmOpen(false)}>아니요</ConfirmCancel>
-              <Button text="네, 보낼게요" width="130px" onClick={() => setConfirmOpen(false)} />
+              <ConfirmCancel onClick={() => setConfirmOpen(false)} disabled={submitting}>
+                아니요
+              </ConfirmCancel>
+              <Button
+                text={submitting ? '전송 중…' : '네, 보낼게요'}
+                width="130px"
+                onClick={submitNow}
+              />
             </ConfirmActions>
           </Column>
         </Modal>
@@ -120,20 +145,19 @@ export default function QuoteSheet({ request, onClose }) {
   );
 }
 
-/* ========== 로컬 스타일 (템플릿에 의존하지 않도록 자체 포함) ========== */
+/* 스타일 */
 const Column = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ $gap }) => ($gap != null ? `${$gap}px` : 0)};
+  gap: ${({ $gap }) => ($gap ? `${$gap}px` : 0)};
   align-items: ${({ $align }) => $align || 'stretch'};
 `;
 const Row = styled.div`
   display: flex;
   align-items: ${({ $align }) => $align || 'stretch'};
   justify-content: ${({ $justify }) => $justify || 'flex-start'};
-  gap: ${({ $gap }) => ($gap != null ? `${$gap}px` : 0)};
+  gap: ${({ $gap }) => ($gap ? `${$gap}px` : 0)};
 `;
-
 const SheetPanel = styled.div`
   width: 49%;
   height: 100%;
@@ -144,12 +168,9 @@ const SheetPanel = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  animation: ${keyframes`
-    from { transform: translateX(40px); opacity: 0; }
-    to   { transform: translateX(0);    opacity: 1; }
-  `} 0.3s ease-out both;
+  animation: ${keyframes`from{transform:translateX(40px);opacity:0;}to{transform:translateX(0);opacity:1;}`}
+    0.3s ease-out both;
 `;
-
 const CheckRow = styled.button`
   display: inline-flex;
   align-items: center;
@@ -161,7 +182,6 @@ const CheckRow = styled.button`
   text-align: left;
 `;
 const CheckIcon = styled.img``;
-
 const Textarea = styled.textarea`
   ${typo('body2')};
   color: ${color('black')};
@@ -182,7 +202,11 @@ const CharCount = styled.div`
   color: ${color('grayscale.400')};
   text-align: right;
 `;
-
+const ErrorText = styled.div`
+  ${typo('caption1')};
+  color: ${color('error.500')};
+  margin-top: 4px;
+`;
 const SheetFooter = styled.div`
   margin-top: 30px;
   display: flex;
@@ -199,8 +223,11 @@ const GhostButton = styled.button`
   color: ${color('black')};
   cursor: pointer;
   white-space: nowrap;
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `;
-
 const Title = styled.div`
   ${typo('h3')};
   color: ${color('black')};
@@ -230,13 +257,12 @@ const Caption1_800 = styled.div`
   ${typo('caption1')};
   color: ${color('grayscale.800')};
 `;
-
 const ConfirmRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: ${({ $col }) => ($col ? 'flex-start' : 'center')};
   gap: 10px;
-  ${({ $col }) => $col && 'flex-direction: column;'}
+  ${({ $col }) => $col && 'flex-direction:column;'}
 `;
 const ConfirmTextBox = styled.div`
   ${typo('body2')};
@@ -264,4 +290,8 @@ const ConfirmCancel = styled.button`
   background: #fff;
   color: ${color('grayscale.600')};
   cursor: pointer;
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `;

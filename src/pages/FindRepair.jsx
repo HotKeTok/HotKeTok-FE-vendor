@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import FindRepairTemplate from '../templates/FindRepairTemplate';
 import { apiFetchVendorRequests, apiFetchVendorRequestDetail } from '../api/vendor-service';
+import { apiCreateEstimate } from '../api/estimate-service'; // ✅ 추가
 
 import { formatYMDWithKoreanTime } from '../utils/date';
 import { formatCategoryName, formatPhone } from '../utils/format';
@@ -18,7 +19,6 @@ function displayDateTime(value) {
   return value;
 }
 
-// 상세 응답의 payerType → UI 표기
 function mapPayerTypeToKorean(t) {
   if (t === 'PROPRIETORSHIP') return '집주인';
   if (t === 'RESIDENT') return '입주민';
@@ -32,6 +32,7 @@ export default function FindRepair() {
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [submitting, setSubmitting] = useState(false); // ✅ 견적 제출 로딩
   const [error, setError] = useState('');
 
   // 1) 목록 로드
@@ -52,14 +53,14 @@ export default function FindRepair() {
           requestedAt: displayDateTime(item.estimateTime),
           preferredDate: displayDateTime(item.estimateTime),
           costPayer: '-', // 목록에는 없음
-          phone: formatPhone(item.phone ?? ''), // 안전 처리
+          phone: formatPhone(item.phone ?? ''),
           images: [],
           description: '',
         }));
 
         if (!active) return;
         setRequests(mapped);
-        setSelectedId(mapped[0]?.id ?? null); // 첫 항목 선택
+        setSelectedId(mapped[0]?.id ?? null);
       } catch (err) {
         if (!active) return;
         setError(err?.message || '알 수 없는 오류가 발생했습니다.');
@@ -87,7 +88,6 @@ export default function FindRepair() {
         const { success, result, message } = await apiFetchVendorRequestDetail(selectedId);
         if (!success) throw new Error(message || '요청 상세를 불러오지 못했습니다.');
 
-        // 상세 → 템플릿 모델로 매핑
         const detail = {
           id: String(selectedId),
           title: formatCategoryName(result?.category ?? '수리 요청'),
@@ -106,7 +106,6 @@ export default function FindRepair() {
       } catch (err) {
         if (!alive) return;
         setSelectedDetail(null);
-        // 상세 실패해도 목록은 유지 → 좌측은 빈 상태로 보이게
         console.error(err);
       } finally {
         if (alive) setLoadingDetail(false);
@@ -117,7 +116,26 @@ export default function FindRepair() {
     };
   }, [selectedId]);
 
-  // 간단한 로딩/에러 표시 (원하면 템플릿 쪽에 로딩 스켈레톤 prop 추가 가능)
+  // 3) 견적 제출 핸들러 (템플릿 → QuoteSheet가 호출)
+  const handleSubmitEstimate = async ({ estimatePriceDigits, decisionLater, comment }) => {
+    if (!selectedId) throw new Error('선택된 요청이 없습니다.');
+    try {
+      setSubmitting(true);
+      const payload = {
+        requestFormId: Number(selectedId),
+        estimatePrice: decisionLater ? 0 : Number(estimatePriceDigits || 0),
+        decisionLater: Boolean(decisionLater),
+        comment: comment ?? '',
+      };
+      const { success, message } = await apiCreateEstimate(payload);
+      if (!success) throw new Error(message || '견적서 전송 실패');
+      // 성공 시: 특별한 후속 UI가 없다면 여기서 끝.
+      return true;
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (loadingList) return <div style={{ padding: 24 }}>불러오는 중…</div>;
   if (error) return <div style={{ padding: 24, color: '#d00' }}>{error}</div>;
 
@@ -128,6 +146,8 @@ export default function FindRepair() {
       onSelect={setSelectedId}
       selectedDetail={selectedDetail}
       loadingDetail={loadingDetail}
+      onSubmitEstimate={handleSubmitEstimate}
+      submittingEstimate={submitting}
     />
   );
 }
