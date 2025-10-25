@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ChatTemplate from '../templates/ChatTemplate';
 import { DUMMY_CHAT_ROOMS, DUMMY_CHATS } from '../mocks/chat';
+import { getAccessToken } from '../utils/auth';
+import useChatStore from '../store/useChatStore';
 
 export default function Chat() {
+  const accessToken = getAccessToken();
   const [chatRooms, setChatRooms] = useState(DUMMY_CHAT_ROOMS); // 채팅방 목록
   const [selectedChatRoomId, setSelectedChatRoomId] = useState(null); // 클릭된 채팅방 ID
   const [selectedChatMessages, setSelectedChatMessages] = useState(
@@ -29,6 +32,22 @@ export default function Chat() {
       { id: Date.now(), content, sender: 'me' },
     ]);
   };
+
+  const { connect, disconnect } = useChatStore();
+
+  // todo: 로그인시 바로 연결하도록 수정 (임시)
+  useEffect(() => {
+    // accessToken이 존재하면 (로그인 성공 시) 웹소켓 연결
+    if (accessToken !== '') {
+      connect(accessToken);
+    }
+
+    // accessToken이 사라지면 (로그아웃 시) 웹소켓 연결 해제
+    // useEffect의 클린업 함수를 활용
+    return () => {
+      disconnect();
+    };
+  }, [accessToken, connect, disconnect]);
 
   return (
     <ChatTemplate
