@@ -83,7 +83,7 @@ export default function HomeContent({ myPageData, onPatchProfileInfo }) {
     introduction,
     phoneNumber,
     category,
-    address,
+    addressAndDetail,
     detailAddress,
     runningTime,
   } = myPageData;
@@ -162,13 +162,15 @@ export default function HomeContent({ myPageData, onPatchProfileInfo }) {
             ]}
           />
           <HomeContentRow
-            isEmpty={!address}
+            isEmpty={!addressAndDetail}
             icon={BookmarkIcn}
             label="주소"
             values={[
               {
                 id: 1,
-                value: address ? `${address} ${detailAddress || ''}`.trim() : '정보 없음',
+                value: addressAndDetail
+                  ? `${addressAndDetail} ${detailAddress || ''}`.trim()
+                  : '정보 없음',
                 color: color('grayscale.800'),
               },
             ]}
