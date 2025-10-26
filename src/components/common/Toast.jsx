@@ -89,7 +89,7 @@ const ToastWrap = styled.div`
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
   ${typo('body2')};
-
+  white-space: pre-line;
   ${({ $phase }) =>
     $phase === 'enter'
       ? css`
