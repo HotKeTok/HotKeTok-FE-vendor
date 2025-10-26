@@ -109,16 +109,18 @@ const BackgroundContainer = styled.div`
 const Content = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   position: absolute;
   top: 20%;
-  left: 15%;
+  left: 20%;
   bottom: 20%;
-  right: 12%;
+  right: 17%;
 `;
 
 const RightSection = styled.div`
   display: flex;
-  width: 500px;
+  width: 30vw;
+  min-height: 55vh;
   padding: 72px 79px;
   flex-direction: column;
   justify-content: space-between;
@@ -154,7 +156,6 @@ const SignUpButton = styled.div`
   cursor: pointer;
   ${typo('button2')};
   color: ${color('grayscale.600')};
-  width: 100px;
   padding: 10px 20px;
   gap: 10px;
 `;

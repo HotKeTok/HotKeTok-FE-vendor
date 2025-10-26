@@ -7,18 +7,7 @@ import {
   apiFetchVendorEstimateDetail,
 } from '../api/vendor-service';
 import { formatYMDWithKoreanTime } from '../utils/date';
-
-// 카테고리 → 카드 타이틀
-const categoryToTitle = cat => {
-  if (!cat) return '수리';
-  const map = {
-    가전: '가전 수리',
-    도어: '문/창문 수리',
-    문창문: '문/창문 수리',
-    문_창문: '문/창문 수리',
-  };
-  return map[cat] || `${cat} 수리`;
-};
+import { formatCategoryName } from '../utils/format';
 
 // 안전 Date
 const safeDate = input => {
@@ -115,7 +104,7 @@ export default function TotalRepair() {
           .map(e => ({
             id: String(e.estimateId),
             status: e.status === 'REJECTED' ? 'REJECTED' : 'CHOOSING',
-            title: categoryToTitle(e.category),
+            title: formatCategoryName(e.category),
             location: e.address,
             // 서버 문자열 그대로 전달
             datetimeStr: asServerKDatetime(e.estimateTime),
@@ -140,7 +129,7 @@ export default function TotalRepair() {
           return {
             id: String(e.estimateId),
             status: mapStatusToUI(e.status) || 'MATCHING',
-            title: categoryToTitle(e.category),
+            title: formatCategoryName(e.category),
             location: e.address,
             repairDate: scheduledAt, // ✅ BoxRepairDetail 내부에서 new Date(...) 사용
             amount:
@@ -161,7 +150,7 @@ export default function TotalRepair() {
         const doneItems = (doneSrc.estimates || []).map(e => ({
           id: String(e.estimateId),
           status: 'COMPLETED',
-          title: categoryToTitle(e.category),
+          title: formatCategoryName(e.category),
           location: e.address,
           datetimeStr: asServerKDatetime(e.estimateTime),
         }));
@@ -184,7 +173,7 @@ export default function TotalRepair() {
     return {
       id: String(d.estimateId),
       status: mapStatusToUI(d.status) || 'MATCHING',
-      title: categoryToTitle(d.category),
+      title: formatCategoryName(d.category),
       location: d.address,
       datetimeStr: asServerKDatetime(d.estimateTime), // 모달 “수리 일시”는 문자열 그대로
       repairDate: null, // 모달은 문자열만 쓰도록 유지
