@@ -134,6 +134,7 @@ export default function TotalRepair() {
             repairDate: scheduledAt, // ✅ BoxRepairDetail 내부에서 new Date(...) 사용
             amount:
               typeof e.estimatePrice === 'number' ? e.estimatePrice : Number(e.estimatePrice || 0),
+            decisionLater: !!e.decisionLater,
             costBearer: payTypeToBearer(e.payType, e.payerName),
             contact: e.phoneNumber || '',
             // 🔑 '내용' 칸에 estimateComment를 우선 보여주도록 매핑
@@ -178,6 +179,7 @@ export default function TotalRepair() {
       datetimeStr: asServerKDatetime(d.estimateTime), // 모달 “수리 일시”는 문자열 그대로
       repairDate: null, // 모달은 문자열만 쓰도록 유지
       amount: typeof d.estimatePrice === 'number' ? d.estimatePrice : Number(d.estimatePrice || 0),
+      decisionLater: !!d.decisionLater,
       costBearer: payTypeToBearer(d.payType, d.payerName),
       contact: d.phoneNumber || '',
       description: d.requestDescription || '',

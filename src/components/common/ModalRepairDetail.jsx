@@ -63,7 +63,10 @@ export default function ModalRepairDetail({
                   : '')
               }
             />
-            <InfoRow label="금액" value={`${amount.toLocaleString()}원`} />
+            <InfoRow
+              label="금액"
+              value={repairData?.decisionLater ? '상담 후 결정' : `${amount.toLocaleString()}원`}
+            />
             <InfoRow label="비용 부담" value={costBearer} />
             <InfoRow label="전화번호" value={formatPhone(contact)} />
             <PhotoSection>
