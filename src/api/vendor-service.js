@@ -87,3 +87,67 @@ export async function apiFetchVendorRequestDetail(requestId) {
     message: data?.message ?? '',
   };
 }
+
+/** 공통 성공 판정 */
+const isOk = d =>
+  d?.isSuccess === true || d?.success === true || d?.code === 'COMMON200' || d?.status === 200;
+
+/** 1) 보낸 견적서 조회: GET /vendor-service/estimate */
+export async function apiFetchVendorSentEstimates() {
+  const token = getAccessToken?.();
+  const { data } = await api.get('/vendor-service/estimate', {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return {
+    success: isOk(data),
+    raw: data ?? null,
+    result: data?.data ?? null, // { count, estimates: [...] }
+    message: data?.message ?? '',
+  };
+}
+
+/** 2) 진행 중인 수리 조회: GET /vendor-service/processing */
+export async function apiFetchVendorProcessingRepairs() {
+  const token = getAccessToken?.();
+  const { data } = await api.get('/vendor-service/processing', {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return {
+    success: isOk(data),
+    raw: data ?? null,
+    result: data?.data ?? null, // { count, requestForm: [...] }
+    message: data?.message ?? '',
+  };
+}
+
+/** 3) 처리 완료 수리 조회: GET /vendor-service/done */
+export async function apiFetchVendorDoneRepairs() {
+  const token = getAccessToken?.();
+  const { data } = await api.get('/vendor-service/done', {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  return {
+    success: isOk(data),
+    raw: data ?? null,
+    result: data?.data ?? null, // { count, estimates: [...] }
+    message: data?.message ?? '',
+  };
+}
+
+/** ✅ 견적서 상세 조회: GET /vendor-service/estimate-detail?estimateId= */
+export async function apiFetchVendorEstimateDetail(estimateId) {
+  if (estimateId === undefined || estimateId === null) {
+    throw new Error('estimateId가 필요합니다.');
+  }
+  const token = getAccessToken?.();
+  const { data } = await api.get('/vendor-service/detail', {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    params: { estimateId },
+  });
+  return {
+    success: isOk(data),
+    raw: data ?? null,
+    result: data?.data ?? null, // { estimateId, category, address, ... }
+    message: data?.message ?? '',
+  };
+}

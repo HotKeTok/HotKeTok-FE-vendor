@@ -7,6 +7,7 @@ import RepairStatusChip from './RepairStatusChip';
 import { Column, Row } from '../../styles/flex';
 import Button from './Button';
 import Modal from './Modal';
+import { formatPhone } from '../../utils/format';
 
 /**
  *
@@ -55,13 +56,16 @@ export default function ModalRepairDetail({
           <InfoTable>
             <InfoRow
               label="수리 일시"
-              value={format(new Date(repairDate), 'yyyy. MM. dd / a hh:mm', {
-                locale: ko,
-              })}
+              value={
+                repairData?.datetimeStr ??
+                (repairDate
+                  ? format(new Date(repairDate), 'yyyy. MM. dd / a hh:mm', { locale: ko })
+                  : '')
+              }
             />
             <InfoRow label="금액" value={`${amount.toLocaleString()}원`} />
             <InfoRow label="비용 부담" value={costBearer} />
-            <InfoRow label="전화번호" value={contact} />
+            <InfoRow label="전화번호" value={formatPhone(contact)} />
             <PhotoSection>
               <Label>증상 사진</Label>
               <PhotoGrid>

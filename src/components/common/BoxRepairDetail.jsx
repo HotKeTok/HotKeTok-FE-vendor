@@ -7,6 +7,7 @@ import TimeChip from '../dashboard/TimeChip';
 import { formatTime } from '../../utils/date';
 import ArrowRightIcn from '../../assets/common/icon-arrow-right.svg?react';
 import RepairStatusChip from './RepairStatusChip';
+import { formatPhone } from '../../utils/format';
 
 /**
  * @param {Object} repair - 수리 데이터 객체
@@ -57,7 +58,7 @@ export default function BoxRepairDetail({
         )}
         <InfoRow label="금액" value={`${amount.toLocaleString()}원`} />
         <InfoRow label="비용 부담" value={costBearer} />
-        <InfoRow label="전화번호" value={contact} />
+        <InfoRow label="전화번호" value={formatPhone(contact)} />
         <InfoRow label="내용" />
       </InfoTable>
 
