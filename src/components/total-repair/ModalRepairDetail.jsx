@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { color, typo } from '../../styles/tokens';
-import RepairStatusChip from './RepairStatusChip';
+import RepairStatusChip from '../common/RepairStatusChip';
 import { Column, Row } from '../../styles/flex';
-import Button from './Button';
-import Modal from './Modal';
+import Button from '../common/Button';
+import Modal from '../common/Modal';
 import { formatPhone } from '../../utils/format';
 
 /**
