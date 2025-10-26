@@ -5,8 +5,8 @@ import { Row } from '../styles/flex';
 
 import ColumnSection from '../components/total-repair/ColumnSection';
 import RepairCard from '../components/total-repair/RepairCard';
-import BoxRepairDetail from '../components/common/BoxRepairDetail';
-import ModalRepairDetail from '../components/common/ModalRepairDetail';
+import BoxRepairDetail from '../components/total-repair/BoxRepairDetail';
+import ModalRepairDetail from '../components/total-repair/ModalRepairDetail';
 import ModalImageSlider from '../components/common/ModalImageSlider';
 
 export default function TotalRepairTemplate({

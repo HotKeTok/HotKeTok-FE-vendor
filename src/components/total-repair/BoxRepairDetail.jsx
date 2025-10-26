@@ -1,4 +1,4 @@
-// src/components/common/BoxRepairDetail.jsx
+// src/components/total-repair/BoxRepairDetail.jsx
 import React from 'react';
 import styled from 'styled-components';
 import { typo, color } from '../../styles/tokens';
@@ -6,7 +6,7 @@ import { Row } from '../../styles/flex';
 import TimeChip from '../dashboard/TimeChip';
 import { formatTime } from '../../utils/date';
 import ArrowRightIcn from '../../assets/common/icon-arrow-right.svg?react';
-import RepairStatusChip from './RepairStatusChip';
+import RepairStatusChip from '../common/RepairStatusChip';
 import { formatPhone } from '../../utils/format';
 
 /**
