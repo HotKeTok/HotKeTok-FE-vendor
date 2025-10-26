@@ -35,6 +35,21 @@ export async function apiVendorRegister({ data, file, images }) {
   return res;
 }
 
+// GET: 안증 전 수리업체 정보 조회
+export async function apiFetchBeforeRegister() {
+  const token = getAccessToken?.();
+  const { data } = await api.get('/vendor-service/before-register', {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+
+  return {
+    success: isOk(data),
+    raw: data ?? null,
+    result: data?.data ?? null, // { vendorId, name, category, address, detailAddress, introduction, introductionImage, state }
+    message: data?.message ?? '',
+  };
+}
+
 // GET : 수리업체가 받은 수리 요청 목록 조회
 export async function apiFetchVendorRequests() {
   const token = getAccessToken();
