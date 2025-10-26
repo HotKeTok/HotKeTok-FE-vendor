@@ -1,5 +1,8 @@
 import api from './client';
 import { getAccessToken } from '../utils/auth';
+/** 공통 성공 판정 */
+const isOk = d =>
+  d?.isSuccess === true || d?.success === true || d?.code === 'COMMON200' || d?.status === 200;
 
 // POST : 수리업체 등록
 export async function apiVendorRegister({ data, file, images }) {
@@ -102,10 +105,6 @@ export async function apiFetchVendorRequestDetail(requestId) {
     message: data?.message ?? '',
   };
 }
-
-/** 공통 성공 판정 */
-const isOk = d =>
-  d?.isSuccess === true || d?.success === true || d?.code === 'COMMON200' || d?.status === 200;
 
 /** 1) 보낸 견적서 조회: GET /vendor-service/estimate */
 export async function apiFetchVendorSentEstimates() {

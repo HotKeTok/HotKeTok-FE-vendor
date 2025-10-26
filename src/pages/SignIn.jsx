@@ -94,10 +94,10 @@ export default function SignIn() {
       useAuthStore.getState().setUserId(userId);
 
       // ✅ 네비게이션 조건
-      if (role === 'NONE') {
-        nav('/welcome');
-      } else if (onBoardingStageFlag === false) {
+      if (role === 'NONE' && onBoardingStageFlag === false) {
         nav('/init-process');
+      } else if (role === 'NONE' && onBoardingStageFlag === true) {
+        nav('/welcome');
       } else {
         nav('/');
       }
