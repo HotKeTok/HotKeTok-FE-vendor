@@ -4,6 +4,7 @@ import LeftSection from '../components/onboarding/LeftSection';
 import { Column, Row } from '../styles/flex';
 import { color, typo } from '../styles/tokens';
 import Shell from '../components/onboarding/Shell';
+import { useNavigate } from 'react-router-dom';
 
 const images = [
   'https://picsum.photos/200',
@@ -17,6 +18,10 @@ const images = [
 ];
 
 export default function WelcomeTemplate() {
+  const nav = useNavigate();
+  const handleBack = () => {
+    nav(-1);
+  };
   return (
     <Background>
       <LeftSection
@@ -26,7 +31,7 @@ export default function WelcomeTemplate() {
         repairlogo={true}
         mainMarginTop="10px"
       />
-      <Shell height="50vh">
+      <Shell height="50vh" onBack={handleBack}>
         <Column>
           <VendorName>메종인테리어</VendorName>
           <InformMessage>작성해 주신 정보를 바탕으로 인증을 진행하고 있어요.</InformMessage>
