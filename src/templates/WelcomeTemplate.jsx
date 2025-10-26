@@ -1,3 +1,4 @@
+// src/templates/WelcomeTemplate.jsx
 import React from 'react';
 import styled from 'styled-components';
 import LeftSection from '../components/onboarding/LeftSection';
@@ -6,7 +7,7 @@ import { color, typo } from '../styles/tokens';
 import Shell from '../components/onboarding/Shell';
 import { useNavigate } from 'react-router-dom';
 
-const images = [
+const fallbackImages = [
   'https://picsum.photos/200',
   'https://picsum.photos/200',
   'https://picsum.photos/400/400',
@@ -17,11 +18,25 @@ const images = [
   'https://picsum.photos/100/100',
 ];
 
-export default function WelcomeTemplate() {
+export default function WelcomeTemplate({ loading = false, error = '', vendor = null }) {
+  const vendorName = vendor?.name ?? '메종인테리어';
+  const vendorCategory = vendor?.category ?? '종합설비업체';
+  const vendorIntro = vendor?.introduction ?? '좋은 품질의 서비스 보장해드립니다.';
+
+  const fullAddress = vendor?.fullAddress
+    ? vendor.fullAddress.split('\n')
+    : ['서울특별시 강남구 영동대로 112길 46', '(엘에이치 삼성 도시형 생활주택)(LH삼성아파트) 1층'];
+
+  const images =
+    Array.isArray(vendor?.introductionImage) && vendor.introductionImage.length > 0
+      ? vendor.introductionImage
+      : fallbackImages;
+
   const nav = useNavigate();
   const handleBack = () => {
-    nav(-1);
+    nav('/sign-in');
   };
+
   return (
     <Background>
       <LeftSection
@@ -31,40 +46,54 @@ export default function WelcomeTemplate() {
         repairlogo={true}
         mainMarginTop="10px"
       />
-      <Shell height="50vh" onBack={handleBack}>
+      <Shell height="45vh" onBack={handleBack}>
         <Column>
-          <VendorName>메종인테리어</VendorName>
-          <InformMessage>작성해 주신 정보를 바탕으로 인증을 진행하고 있어요.</InformMessage>
+          <VendorName>{loading ? '불러오는 중…' : vendorName}</VendorName>
+          <InformMessage>
+            {error
+              ? '업체 정보를 불러오지 못했습니다.'
+              : '작성해 주신 정보를 바탕으로 인증을 진행하고 있어요.'}
+          </InformMessage>
           <IngBadge>인증 중</IngBadge>
         </Column>
+
         <Column $gap={12}>
           <Row $justify={'space-between'}>
             <Label>이름</Label>
-            <Content>메종인테리어</Content>
+            <Content>{vendorName}</Content>
           </Row>
           <Row $justify={'space-between'}>
             <Label>업종</Label>
-            <Content>종합설비업체</Content>
+            <Content>{vendorCategory}</Content>
           </Row>
           <Row $justify={'space-between'}>
             <Label>주소</Label>
             <Content>
-              서울특별시 강남구 영동대로 112길 46
-              <br /> (엘에이치 삼성 도시형 생활주택)(LH삼성아파트) 1층
+              {fullAddress.map((line, idx) => (
+                <span key={idx}>
+                  {line}
+                  {idx < fullAddress.length - 1 && <br />}
+                </span>
+              ))}
             </Content>
           </Row>
           <Column>
             <Label>소개</Label>
           </Column>
-          <IntroductionBox>좋은 품질의 서비스 보장해드립니다.</IntroductionBox>
+          <IntroductionBox>{vendorIntro}</IntroductionBox>
         </Column>
+
         <Column $gap={8} style={{ width: '100%' }}>
           <PhotoGrid>
-            {images.map((img, i) => (
-              <Thumb key={`${img.url || img.name}-${i}`}>
-                <img src={img.url} alt={img.name || `img-${i}`} />
-              </Thumb>
-            ))}
+            {images.map((img, i) => {
+              const src = typeof img === 'string' ? img : img?.url;
+              const alt = typeof img === 'object' && img?.name ? img.name : `img-${i}`;
+              return (
+                <Thumb key={`${src}-${i}`}>
+                  <img src={src} alt={alt} />
+                </Thumb>
+              );
+            })}
           </PhotoGrid>
         </Column>
       </Shell>
@@ -72,6 +101,9 @@ export default function WelcomeTemplate() {
   );
 }
 
+/* ======================
+ * Styles (기존 유지)
+ * ====================== */
 const Background = styled.div`
   height: 100vh;
   width: 100vw;
@@ -154,7 +186,7 @@ const PhotoGrid = styled.div`
 `;
 
 const Thumb = styled.div`
-  height: 72px;
+  height: 80%;
   border-radius: 6px;
   overflow: hidden;
   > img {

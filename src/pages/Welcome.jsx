@@ -1,12 +1,31 @@
 // src/pages/Welcome.jsx
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import WelcomeTemplate from '../templates/WelcomeTemplate';
 import { apiFetchBeforeRegister } from '../api/vendor-service';
+import Toast from '../components/common/Toast';
+import { useLocation } from 'react-router-dom';
 
 export default function Welcome() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [vendor, setVendor] = useState(null);
+
+  // ✅ Toast 상태
+  const [toast, setToast] = useState({ show: false, message: '' });
+  const closeToast = () => setToast({ show: false, message: '' });
+
+  // ✅ location으로부터 전달된 메시지 확인
+  const location = useLocation();
+  useEffect(() => {
+    const msg = location.state?.toastMessage;
+    if (msg) {
+      setToast({ show: true, message: msg });
+      // 1.5초 뒤 자동 닫힘
+      setTimeout(() => closeToast(), 1500);
+      // 2. state를 초기화해서 새로고침 시 재실행되지 않게 처리 (optional)
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     (async () => {
@@ -14,12 +33,10 @@ export default function Welcome() {
         setLoading(true);
         setError('');
         const { success, result, message } = await apiFetchBeforeRegister();
-        if (!success || !result) {
-          throw new Error(message || '업체 정보를 불러오지 못했습니다.');
-        }
+        if (!success || !result) throw new Error(message || '업체 정보를 불러오지 못했습니다.');
 
-        // 결과 정규화 (UI에 바로 쓰기 편하게)
         const fullAddress = [result.address, result.detailAddress].filter(Boolean).join('\n');
+
         setVendor({
           vendorId: result.vendorId,
           name: result.name,
@@ -31,7 +48,7 @@ export default function Welcome() {
           introductionImage: Array.isArray(result.introductionImage)
             ? result.introductionImage
             : [],
-          state: result.state, // NONE | ...
+          state: result.state, // ex) NONE
         });
       } catch (e) {
         setError(e?.message || '업체 정보를 불러오는 중 오류가 발생했습니다.');
@@ -41,19 +58,12 @@ export default function Welcome() {
     })();
   }, []);
 
-  // 템플릿에 넘길 props (UI는 그대로)
-  const tplProps = useMemo(
-    () => ({
-      loading,
-      error,
-      vendor, // { name, category, fullAddress, introduction, introductionImage, state, ... }
-    }),
-    [loading, error, vendor]
-  );
+  const tplProps = useMemo(() => ({ loading, error, vendor }), [loading, error, vendor]);
 
   return (
     <div>
       <WelcomeTemplate {...tplProps} />
+      <Toast show={toast.show} message={toast.message} onClose={closeToast} duration={1500} />
     </div>
   );
 }
