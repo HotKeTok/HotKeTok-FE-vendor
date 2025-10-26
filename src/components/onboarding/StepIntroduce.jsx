@@ -39,7 +39,7 @@ export default function StepIntroduce({ defaultIntro = '', defaultImages = [], o
       <Column>
         <Column $gap={30}>
           <Column $gap={4}>
-            <MainText style={{ marginTop: '50px' }}>업체 소개와 사진을 등록해주세요.</MainText>
+            <MainText style={{ marginTop: '10px' }}>업체 소개와 사진을 등록해주세요.</MainText>
             <SubText2>
               {`업체를 소개할 수 있는 사진을 등록해주세요. \n소개와 사진은 나중에 수정할 수 있어요.`}
             </SubText2>
@@ -126,7 +126,7 @@ const UploadGrid = styled.div`
   gap: 8px;
 `;
 const UploadSlot = styled.div`
-  height: 60px;
+  height: 70px;
   border: 1px dashed ${color('grayscale.300')};
   border-radius: 5px;
   background: #fafafb;
@@ -146,7 +146,7 @@ const UploadText = styled.div`
 `;
 const Thumb = styled.div`
   position: relative;
-  height: 60px;
+  height: 70px;
   border-radius: 5px;
   overflow: hidden;
   > img {

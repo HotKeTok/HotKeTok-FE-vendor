@@ -72,7 +72,7 @@ const SubText = styled.div`
 `;
 const TypeCard = styled.div`
   width: 100%;
-  padding: 24px;
+  padding: 18px 24px;
   border-radius: 12px;
   border: 1.5px solid ${({ $selected }) => ($selected ? color('brand.primary') : '#EFEFEF')};
   background: #fff;

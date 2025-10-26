@@ -338,16 +338,16 @@ const Content = styled.div`
   align-items: center;
   position: absolute;
   top: 20%;
-  left: 15%;
+  left: 20%;
   bottom: 20%;
-  right: 12%;
+  right: 17%;
 `;
 
 const RightSection = styled.div`
   position: relative;
   display: flex;
-  width: 500px;
-  min-height: 90vh;
+  width: 30vw;
+  min-height: 70vh;
   padding: 75px 80px;
   flex-direction: column;
   justify-content: space-between;

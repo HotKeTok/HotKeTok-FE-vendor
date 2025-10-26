@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import LeftSection from '../components/onboarding/LeftSection';
 import { Column, Row } from '../styles/flex';
 import { color, typo } from '../styles/tokens';
+import Shell from '../components/onboarding/Shell';
 
 const images = [
   'https://picsum.photos/200',
@@ -25,7 +26,7 @@ export default function WelcomeTemplate() {
         repairlogo={true}
         mainMarginTop="10px"
       />
-      <WhiteBox>
+      <Shell height="50vh">
         <Column>
           <VendorName>메종인테리어</VendorName>
           <InformMessage>작성해 주신 정보를 바탕으로 인증을 진행하고 있어요.</InformMessage>
@@ -61,7 +62,7 @@ export default function WelcomeTemplate() {
             ))}
           </PhotoGrid>
         </Column>
-      </WhiteBox>
+      </Shell>
     </Background>
   );
 }
@@ -72,13 +73,10 @@ const Background = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 23%;
+  padding: 0 17% 0 20%;
   background: linear-gradient(180deg, #d8f4ea 0%, #fff 100%);
 `;
 
-const Container = styled.div`
-  display: flex;
-`;
 const WhiteBox = styled.div`
   display: flex;
   min-width: 420px;
@@ -105,7 +103,7 @@ const InformMessage = styled.div`
 const IngBadge = styled.div`
   width: 80px;
   margin-top: 15px;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
 
   ${typo('button1')};
   color: ${color('brand.primary')};
@@ -145,6 +143,7 @@ const IntroductionBox = styled.div`
 
 const PhotoGrid = styled.div`
   display: grid;
+  margin-top: 12px;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 `;

@@ -220,7 +220,7 @@ const Content = styled.div`
   align-items: center;
   position: absolute;
   top: 20%;
-  left: 15%;
+  left: 20%;
   bottom: 20%;
-  right: 12%;
+  right: 17%;
 `;

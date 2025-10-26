@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import iconArrowLeft from '../../assets/common/icon-arrow-left.svg';
 
-export default function Shell({ icon, children, onBack }) {
+export default function Shell({ icon, children, onBack, height }) {
   return (
-    <RightSection>
+    <RightSection $height={height}>
       <BackButton onClick={onBack}>
         <img src={iconArrowLeft} alt="back" />
       </BackButton>
@@ -17,8 +17,8 @@ export default function Shell({ icon, children, onBack }) {
 const RightSection = styled.div`
   position: relative;
   display: flex;
-  width: 500px;
-  min-height: 80vh;
+  width: 30vw;
+  min-height: ${({ $height }) => $height || '75vh'};
   padding: 95px 80px 30px 80px;
   flex-direction: column;
   justify-content: space-between;
