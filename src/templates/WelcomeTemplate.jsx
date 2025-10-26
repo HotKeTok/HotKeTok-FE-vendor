@@ -183,6 +183,7 @@ const PhotoGrid = styled.div`
   margin-top: 12px;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
+  direction: rtl; /* ✅ 이미지 순서 반전 (오른쪽 → 왼쪽) */
 `;
 
 const Thumb = styled.div`

@@ -1,5 +1,5 @@
 // src/pages/Welcome.jsx
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import WelcomeTemplate from '../templates/WelcomeTemplate';
 import { apiFetchBeforeRegister } from '../api/vendor-service';
 import Toast from '../components/common/Toast';
@@ -16,13 +16,14 @@ export default function Welcome() {
 
   // ✅ location으로부터 전달된 메시지 확인
   const location = useLocation();
+  const consumedRef = useRef(false);
+
   useEffect(() => {
     const msg = location.state?.toastMessage;
-    if (msg) {
+    if (!consumedRef.current && msg) {
+      consumedRef.current = true; // 딱 한 번만
       setToast({ show: true, message: msg });
-      // 1.5초 뒤 자동 닫힘
-      setTimeout(() => closeToast(), 1500);
-      // 2. state를 초기화해서 새로고침 시 재실행되지 않게 처리 (optional)
+      // 새로고침 시 재실행 방지
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -63,7 +64,9 @@ export default function Welcome() {
   return (
     <div>
       <WelcomeTemplate {...tplProps} />
-      <Toast show={toast.show} message={toast.message} onClose={closeToast} duration={1500} />
+      {toast.show && toast.message && (
+        <Toast show={true} message={toast.message} onClose={closeToast} duration={1500} />
+      )}
     </div>
   );
 }
