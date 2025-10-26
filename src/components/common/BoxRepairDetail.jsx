@@ -56,7 +56,10 @@ export default function BoxRepairDetail({
             value={`${new Date(repairDate).toLocaleDateString()} / ${formatTime(repairDate)}`}
           />
         )}
-        <InfoRow label="금액" value={`${amount.toLocaleString()}원`} />
+        <InfoRow
+          label="금액"
+          value={repair?.decisionLater ? '상담 후 결정' : `${amount.toLocaleString()}원`}
+        />
         <InfoRow label="비용 부담" value={costBearer} />
         <InfoRow label="전화번호" value={formatPhone(contact)} />
         <InfoRow label="내용" />
