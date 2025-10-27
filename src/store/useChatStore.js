@@ -25,7 +25,7 @@ const useChatStore = create((set, get) => ({
     const wsUrl = import.meta.env.VITE_API_BASE_URL_GENERAL.replace('https://', 'wss://');
 
     const client = new Client({
-      brokerURL: `${wsUrl}/ws-stomp`,
+      brokerURL: `${wsUrl}/ws`,
 
       connectHeaders: {
         Authorization: `Bearer ${accessToken}`,

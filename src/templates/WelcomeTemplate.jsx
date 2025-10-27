@@ -166,7 +166,6 @@ const Content = styled.div`
 
 const IntroductionBox = styled.div`
   display: flex;
-  height: 44px;
   padding: 13px 15px;
   gap: 10px;
   align-self: stretch;
