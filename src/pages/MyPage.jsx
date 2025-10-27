@@ -144,7 +144,13 @@ export default function MyPage() {
     const { profileImage, introductionImage, ...rest } = updatedInfo;
     if (fetchPatchProfileInfo(rest, profileImage, introductionImage)) {
       setToast('프로필이 수정되었어요.');
-      setMyPageData(prevData => ({ ...prevData, ...rest }));
+      setMyPageData(prevData => ({
+        ...prevData,
+        ...rest,
+        image: profileImage.url,
+        introductionImage,
+      }));
+      console.log('가져온 프로필 이미지: ', profileImage.url);
     }
   };
 
