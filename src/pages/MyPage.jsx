@@ -12,6 +12,7 @@ import {
   deleteVendorNews,
   patchVendorNews,
 } from '../api/vendor-profile-service';
+import { deleteVendorIntroImage } from '../api/vendor-profile-service';
 
 export default function MyPage() {
   const [loading, setLoading] = useState(false);
@@ -109,6 +110,17 @@ export default function MyPage() {
       console.error('Failed to patch vendor profile:', error);
     }
   };
+
+  // DELETE 소개 이미지
+  const fetchDeleteIntroImage = async imageUrls => {
+    try {
+      const response = await deleteVendorIntroImage(imageUrls);
+      return response.success;
+    } catch (error) {
+      console.error('Failed to delete vendor introduction image:', error);
+    }
+  };
+
   // POST 소식 등록
   const fetchPostNews = async data => {
     try {
@@ -142,7 +154,33 @@ export default function MyPage() {
   // handler 프로필 정보 수정
   const handlePatchProfileInfo = updatedInfo => {
     const { profileImage, introductionImage, ...rest } = updatedInfo;
-    if (fetchPatchProfileInfo(rest, profileImage, introductionImage)) {
+
+    const originalIntroUrls = myPageData?.introductionImage || [];
+    // 파일 객체와 기존 URL 분리
+    const finalExistingUrls = [];
+    const newIntroFiles = [];
+    if (Array.isArray(introductionImage)) {
+      for (const item of introductionImage) {
+        if (item?.file) {
+          newIntroFiles.push(item); // 새 파일
+        } else if (typeof item === 'string') {
+          finalExistingUrls.push(item); // 기존 URL
+        }
+      }
+    }
+
+    // 삭제가 필요한 이미지 URL 파악
+    const deletedIntroImageUrls = originalIntroUrls.filter(
+      originalUrl => !finalExistingUrls.includes(originalUrl)
+    );
+
+    console.log('삭제할 소개 이미지 URL: ', deletedIntroImageUrls);
+    console.log('추가할 소개 이미지 파일: ', newIntroFiles);
+
+    if (
+      fetchPatchProfileInfo(rest, profileImage, newIntroFiles) &&
+      fetchDeleteIntroImage(deletedIntroImageUrls)
+    ) {
       setToast('프로필이 수정되었어요.');
       setMyPageData(prevData => ({
         ...prevData,
@@ -150,7 +188,6 @@ export default function MyPage() {
         image: profileImage.url,
         introductionImage,
       }));
-      console.log('가져온 프로필 이미지: ', profileImage.url);
     }
   };
 

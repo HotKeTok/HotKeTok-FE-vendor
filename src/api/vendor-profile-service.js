@@ -16,6 +16,7 @@ export async function getVendorProfile() {
 // profileFile : 프로필 이미지 파일
 // introFiles : 소개 이미지 파일 배열
 export async function patchVendorProfile(jsonData, profileFile, introFiles) {
+  console.log(introFiles);
   const formData = new FormData();
 
   // request append
@@ -36,7 +37,7 @@ export async function patchVendorProfile(jsonData, profileFile, introFiles) {
   };
 
   // 프로필 이미지 append
-  if (profileFile) {
+  if (profileFile && isImageLike(profileFile.file)) {
     formData.append('profileImage', profileFile.file, profileFile.name, {
       headers: { 'Content-Type': undefined },
       transformRequest: [d => d], // 그대로 통과
@@ -50,6 +51,7 @@ export async function patchVendorProfile(jsonData, profileFile, introFiles) {
   // 소개 이미지는 따로 append
   if (safeImages && safeImages.length > 0) {
     safeImages.forEach((file, index) => {
+      console.log('소개 이미지 파일 추가:', file);
       formData.append('introductionImages', file, file.name || `introductionImage_${index}`, {
         headers: { 'Content-Type': undefined },
         transformRequest: [d => d], // 그대로 통과
@@ -59,6 +61,18 @@ export async function patchVendorProfile(jsonData, profileFile, introFiles) {
 
   const { data } = await client.patch('/vendor-service/profile', formData);
 
+  return {
+    success: data.success,
+    message: data?.message ?? '',
+  };
+}
+
+// DELETE 업체 소개 이미지
+export async function deleteVendorIntroImage(imageUrls) {
+  const { data } = await client.delete('/vendor-service/profile', {
+    introductionImages: imageUrls,
+    profileImage: null,
+  });
   return {
     success: data.success,
     message: data?.message ?? '',

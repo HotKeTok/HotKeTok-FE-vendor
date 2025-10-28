@@ -18,9 +18,9 @@ import { MyPageContext } from '../../context/MyPageData';
 export default function ModalProfileInfo({
   isOpen,
   onClose,
-  onPatchProfileInfo,
   profileEditData, // 편집 데이터
   setProfileEditData, // 편집 데이터 설정 함수
+  onPatchProfileInfo, // 프로필 정보 수정 함수
 }) {
   const myPageData = useContext(MyPageContext).data;
 
