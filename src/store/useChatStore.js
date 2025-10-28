@@ -118,7 +118,7 @@ const useChatStore = create((set, get) => ({
       set({ messages: data.messages, participants: data.participants });
     }
 
-    const newSubscription = client.subscribe(`/sub/chat/room/${roomId}`, message => {
+    const newSubscription = client.subscribe(`/topic/chat/room/${roomId}`, message => {
       const newMessage = JSON.parse(message.body);
       set(state => ({ messages: [...state.messages, newMessage] }));
     });
@@ -133,18 +133,9 @@ const useChatStore = create((set, get) => ({
 
   sendMessage: payload => {
     const client = get().stompClient;
+    console.log('sendMessage payload:', payload);
 
     if (client && get().isConnected) {
-      const optimisticMessage = {
-        ...payload,
-        messageId: `temp-${Date.now()}`, // 중복되지 않는 임시 ID
-        createdAt: new Date().toISOString(), // 현재 시간
-      };
-
-      // 로컬 상태에 내 메시지를 먼저 추가
-      set(state => ({ messages: [...state.messages, optimisticMessage] }));
-
-      // 서버로 메시지 발행
       client.publish({
         destination: '/pub/chat/message',
         body: JSON.stringify(payload),
