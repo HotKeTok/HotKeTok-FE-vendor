@@ -5,6 +5,7 @@ import Chat from './Chat';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import ChatInput from './ChatInput';
+import useChatStore from '../../store/useChatStore';
 
 // 날짜 구분자 포맷팅 함수
 const formatDateSeparator = dateString => {
@@ -20,8 +21,9 @@ const formatDateSeparator = dateString => {
  * @param {function} onSendMessage - 메시지 전송 핸들러 (문자열을 인자로 받음)
  * @param {number} currentUserId - 현재 사용자 ID
  */
-export default function ChatRoom({ messages, onSendMessage, currentUserId, participants }) {
+export default function ChatRoom({ onSendMessage, currentUserId, participants }) {
   // message state는 ChatInput이 관리하므로 여기서는 필요 없음
+  const messages = useChatStore(state => state.messages);
   const messageEndRef = useRef(null);
 
   // 메시지 목록이 변경될 때마다 맨 아래로 스크롤

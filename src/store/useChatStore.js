@@ -118,7 +118,7 @@ const useChatStore = create((set, get) => ({
       set({ messages: data.messages, participants: data.participants });
     }
 
-    const newSubscription = client.subscribe(`/sub/chat/room/${roomId}`, message => {
+    const newSubscription = client.subscribe(`/topic/chat/room/${roomId}`, message => {
       const newMessage = JSON.parse(message.body);
       set(state => ({ messages: [...state.messages, newMessage] }));
     });
@@ -133,12 +133,11 @@ const useChatStore = create((set, get) => ({
 
   sendMessage: payload => {
     const client = get().stompClient;
+    console.log('sendMessage payload:', payload);
 
     if (client && get().isConnected) {
-      console.log('메시지 전송 시도:', payload);
-      // 스토어에 저장된 client를 직접 사용
       client.publish({
-        destination: '/topic/chat/message',
+        destination: '/pub/chat/message',
         body: JSON.stringify(payload),
       });
     } else {
