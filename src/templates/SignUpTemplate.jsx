@@ -153,7 +153,6 @@ export default function SignUpTemplate({
           subtext={'우리 동네 수리 요청, \n 힛케톡에서 바로 만나보세요.'}
         />
 
-        {/* Right만 UX 이식 */}
         <RightSection>
           <BackButton onClick={onBack}>
             <img src={iconArrowLeft} />
@@ -161,7 +160,7 @@ export default function SignUpTemplate({
 
           <SignUpText>회원가입</SignUpText>
 
-          <Column $gap={25}>
+          <Column $gap={20}>
             {/* 이름 */}
             <Column $gap={4}>
               <Label>이름</Label>
@@ -302,7 +301,7 @@ export default function SignUpTemplate({
                 ))}
 
               {!isPasswordValid && (
-                <GuideText>
+                <GuideText style={{ marginBottom: '20px' }}>
                   영문 대소문자와 특수문자를 조합하여 9~16자리까지 가능하며,{'\n'}
                   특수문자는 !,~,@,$,^,*,(,),_,+ 만 사용이 가능해요.
                 </GuideText>
@@ -338,16 +337,16 @@ const Content = styled.div`
   align-items: center;
   position: absolute;
   top: 20%;
-  left: 15%;
+  left: 20%;
   bottom: 20%;
-  right: 12%;
+  right: 17%;
 `;
 
 const RightSection = styled.div`
   position: relative;
   display: flex;
-  width: 500px;
-  min-height: 90vh;
+  width: 30vw;
+  min-height: 70vh;
   padding: 75px 80px;
   flex-direction: column;
   justify-content: space-between;
@@ -358,6 +357,7 @@ const RightSection = styled.div`
 const SignUpText = styled.div`
   ${typo('h2')};
   color: ${color('black')};
+  margin-bottom: 20px;
 `;
 
 const Label = styled.div`

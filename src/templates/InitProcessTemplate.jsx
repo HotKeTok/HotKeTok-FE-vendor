@@ -100,8 +100,12 @@ export default function InitProcessTemplate({
 
     const res = await onRegister(payload);
     if (res?.success) {
-      alert('등록이 완료되었어요!');
-      nav('/');
+      //  Welcome 페이지에서 Toast 띄우도록 state로 전달
+      nav('/welcome', {
+        state: {
+          toastMessage: '회원 등록이 완료되었어요.\n업체 인증이 진행되고 있어요.',
+        },
+      });
     } else {
       alert(res?.message || '등록에 실패했어요. 다시 시도해주세요.');
     }
@@ -220,7 +224,7 @@ const Content = styled.div`
   align-items: center;
   position: absolute;
   top: 20%;
-  left: 15%;
+  left: 20%;
   bottom: 20%;
-  right: 12%;
+  right: 17%;
 `;

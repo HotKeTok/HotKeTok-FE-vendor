@@ -1,5 +1,5 @@
 // src/pages/FindRepair.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import FindRepairTemplate from '../templates/FindRepairTemplate';
 import { apiFetchVendorRequests, apiFetchVendorRequestDetail } from '../api/vendor-service';
 import { apiCreateEstimate } from '../api/estimate-service'; // ✅ 추가
@@ -32,91 +32,101 @@ export default function FindRepair() {
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
-  const [submitting, setSubmitting] = useState(false); // ✅ 견적 제출 로딩
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // 1) 목록 로드
+  // ✅ 목록 불러오기 함수
+  const loadList = useCallback(async () => {
+    setLoadingList(true);
+    setError('');
+    try {
+      const { success, result, message } = await apiFetchVendorRequests();
+      if (!success) throw new Error(message || '요청 목록을 불러오지 못했습니다.');
+
+      const list = Array.isArray(result?.request) ? result.request : [];
+      const mapped = list.map(item => ({
+        id: String(item.requestId),
+        title: formatCategoryName(item.category ?? '수리 요청'),
+        address: item.address ?? '',
+        requestedAt: displayDateTime(item.estimateTime),
+        preferredDate: displayDateTime(item.estimateTime),
+        costPayer: '-',
+        phone: formatPhone(item.phone ?? ''),
+        images: [],
+        description: '',
+      }));
+
+      setRequests(mapped);
+
+      // selectedId가 사라졌다면 첫 번째로 포커스 이동
+      if (!mapped.some(v => v.id === selectedId)) {
+        setSelectedId(mapped[0]?.id ?? null);
+        setSelectedDetail(null);
+      }
+    } catch (err) {
+      setRequests([]);
+      setSelectedId(null);
+      setError(err?.message || '알 수 없는 오류가 발생했습니다.');
+    } finally {
+      setLoadingList(false);
+    }
+  }, [selectedId]);
+
+  // ✅ 상세 불러오기 함수
+  const loadDetail = useCallback(async id => {
+    if (!id) {
+      setSelectedDetail(null);
+      return;
+    }
+    setLoadingDetail(true);
+    try {
+      const { success, result, message } = await apiFetchVendorRequestDetail(id);
+      if (!success) throw new Error(message || '요청 상세를 불러오지 못했습니다.');
+
+      const detail = {
+        id: String(id),
+        title: formatCategoryName(result?.category ?? '수리 요청'),
+        address: result?.address ?? '',
+        requestedAt: displayDateTime(result?.estimateTime),
+        preferredDate: displayDateTime(result?.estimateTime),
+        costPayer: mapPayerTypeToKorean(result?.payerType),
+        phone: formatPhone(result?.phoneNumber ?? ''),
+        images: Array.isArray(result?.requestImage) ? result.requestImage : [],
+        description: result?.comment ?? '',
+        payerName: result?.payerName ?? '',
+      };
+      setSelectedDetail(detail);
+    } catch (err) {
+      setSelectedDetail(null);
+      console.error(err);
+    } finally {
+      setLoadingDetail(false);
+    }
+  }, []);
+
+  // 1) 마운트 시 목록 로드
   useEffect(() => {
     let active = true;
     (async () => {
-      try {
-        setLoadingList(true);
-        setError('');
-        const { success, result, message } = await apiFetchVendorRequests();
-        if (!success) throw new Error(message || '요청 목록을 불러오지 못했습니다.');
-
-        const list = Array.isArray(result?.request) ? result.request : [];
-        const mapped = list.map(item => ({
-          id: String(item.requestId),
-          title: formatCategoryName(item.category ?? '수리 요청'),
-          address: item.address ?? '',
-          requestedAt: displayDateTime(item.estimateTime),
-          preferredDate: displayDateTime(item.estimateTime),
-          costPayer: '-', // 목록에는 없음
-          phone: formatPhone(item.phone ?? ''),
-          images: [],
-          description: '',
-        }));
-
-        if (!active) return;
-        setRequests(mapped);
-        setSelectedId(mapped[0]?.id ?? null);
-      } catch (err) {
-        if (!active) return;
-        setError(err?.message || '알 수 없는 오류가 발생했습니다.');
-        setRequests([]);
-        setSelectedId(null);
-      } finally {
-        if (active) setLoadingList(false);
-      }
+      if (active) await loadList();
     })();
     return () => {
       active = false;
     };
-  }, []);
+  }, [loadList]);
 
   // 2) 선택 변경 시 상세 로드
   useEffect(() => {
     let alive = true;
     (async () => {
-      if (!selectedId) {
-        setSelectedDetail(null);
-        return;
-      }
-      try {
-        setLoadingDetail(true);
-        const { success, result, message } = await apiFetchVendorRequestDetail(selectedId);
-        if (!success) throw new Error(message || '요청 상세를 불러오지 못했습니다.');
-
-        const detail = {
-          id: String(selectedId),
-          title: formatCategoryName(result?.category ?? '수리 요청'),
-          address: result?.address ?? '',
-          requestedAt: displayDateTime(result?.estimateTime),
-          preferredDate: displayDateTime(result?.estimateTime),
-          costPayer: mapPayerTypeToKorean(result?.payerType),
-          phone: formatPhone(result?.phoneNumber ?? ''),
-          images: Array.isArray(result?.requestImage) ? result.requestImage : [],
-          description: result?.comment ?? '',
-          payerName: result?.payerName ?? '',
-        };
-
-        if (!alive) return;
-        setSelectedDetail(detail);
-      } catch (err) {
-        if (!alive) return;
-        setSelectedDetail(null);
-        console.error(err);
-      } finally {
-        if (alive) setLoadingDetail(false);
-      }
+      if (alive) await loadDetail(selectedId);
     })();
     return () => {
       alive = false;
     };
-  }, [selectedId]);
+  }, [selectedId, loadDetail]);
 
-  // 3) 견적 제출 핸들러 (템플릿 → QuoteSheet가 호출)
+  // 3) 견적 제출 시 목록/상세 갱신
   const handleSubmitEstimate = async ({ estimatePriceDigits, decisionLater, comment }) => {
     if (!selectedId) throw new Error('선택된 요청이 없습니다.');
     try {
@@ -129,7 +139,14 @@ export default function FindRepair() {
       };
       const { success, message } = await apiCreateEstimate(payload);
       if (!success) throw new Error(message || '견적서 전송 실패');
-      // 성공 시: 특별한 후속 UI가 없다면 여기서 끝.
+
+      // 상세 즉시 비우기 → UI에서 바로 사라짐
+      setSelectedDetail(null);
+      setSelectedId(null);
+
+      // 그 다음 최신 목록 로드
+      await loadList();
+
       return true;
     } finally {
       setSubmitting(false);

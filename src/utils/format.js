@@ -1,3 +1,4 @@
+// 핸드폰 번호 포맷팅 010-1234-1234
 export const formatPhone = phone => {
   if (!phone) {
     return '';

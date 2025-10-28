@@ -13,10 +13,10 @@ export default function StepCompanyName({ defaultName = '', onNext, onBack }) {
   const can = !!limited.trim();
 
   return (
-    <Shell icon={iconStep1} onBack={onBack}>
+    <Shell icon={iconStep1} onBack={onBack} height={'65vh'}>
       <Column $gap={30}>
         <Column $gap={4}>
-          <MainText style={{ marginTop: '70px' }}>업체의 이름을 알려주세요</MainText>
+          <MainText style={{ marginTop: '30px' }}>업체의 이름을 알려주세요</MainText>
           <SubText>핫케톡에 공개적으로 등록될 이름이에요.</SubText>
         </Column>
 

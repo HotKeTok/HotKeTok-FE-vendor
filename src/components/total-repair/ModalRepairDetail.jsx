@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { color, typo } from '../../styles/tokens';
-import RepairStatusChip from './RepairStatusChip';
+import RepairStatusChip from '../common/RepairStatusChip';
 import { Column, Row } from '../../styles/flex';
-import Button from './Button';
-import Modal from './Modal';
+import Button from '../common/Button';
+import Modal from '../common/Modal';
+import { formatPhone } from '../../utils/format';
 
 /**
  *
@@ -55,13 +56,19 @@ export default function ModalRepairDetail({
           <InfoTable>
             <InfoRow
               label="수리 일시"
-              value={format(new Date(repairDate), 'yyyy. MM. dd / a hh:mm', {
-                locale: ko,
-              })}
+              value={
+                repairData?.datetimeStr ??
+                (repairDate
+                  ? format(new Date(repairDate), 'yyyy. MM. dd / a hh:mm', { locale: ko })
+                  : '')
+              }
             />
-            <InfoRow label="금액" value={`${amount.toLocaleString()}원`} />
+            <InfoRow
+              label="금액"
+              value={repairData?.decisionLater ? '상담 후 결정' : `${amount.toLocaleString()}원`}
+            />
             <InfoRow label="비용 부담" value={costBearer} />
-            <InfoRow label="전화번호" value={contact} />
+            <InfoRow label="전화번호" value={formatPhone(contact)} />
             <PhotoSection>
               <Label>증상 사진</Label>
               <PhotoGrid>

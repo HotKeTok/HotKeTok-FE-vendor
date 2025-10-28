@@ -23,7 +23,7 @@ export default function StepAddressDetail({ baseAddress, defaultDetail = '', onN
     <Shell icon={iconStep3} onBack={onBack}>
       <Column $gap={20}>
         <Column $gap={4}>
-          <MainText style={{ marginTop: '90px' }}>업체의 주소를 등록해주세요</MainText>
+          <MainText style={{ marginTop: '50px' }}>업체의 주소를 등록해주세요</MainText>
           <SubText>고객이 방문할 수 있는 주소를 알려주세요.</SubText>
         </Column>
 
