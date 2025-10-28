@@ -29,7 +29,6 @@ export default function Dashboard() {
     DASHBOARD_DUMMY_DATA.selectedDateRepairs
   );
 
-  // TODO: 수리 현황 (new, in-progress, completed) 건수 api 연결
   const fetchRepairCounts = async () => {
     try {
       const response = await getDashboardRepairCount();
@@ -41,7 +40,6 @@ export default function Dashboard() {
     }
   };
 
-  // TODO: 날짜별 수리 현황 차트 api 연결
   const fetchCalendarData = async (year, month) => {
     try {
       const response = await getDashboardRepairCalendar(year, month);
@@ -53,7 +51,6 @@ export default function Dashboard() {
     }
   };
 
-  // TODO: 특정 날짜의 수리 데이터 api 연결
   const fetchRepairsByDate = async date => {
     try {
       const response = await getDashboardRepairScheduleByDate(date);
@@ -70,7 +67,7 @@ export default function Dashboard() {
   useEffect(() => {
     fetchRepairCounts();
     fetchCalendarData(currentDate.getFullYear(), currentDate.getMonth() + 1);
-  }, [accessToken]);
+  }, [accessToken, currentDate]);
 
   useEffect(() => {
     if (selectedDate) fetchRepairsByDate(selectedDate);

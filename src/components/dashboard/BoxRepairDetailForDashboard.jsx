@@ -4,13 +4,12 @@ import styled from 'styled-components';
 import { typo, color } from '../../styles/tokens';
 import { Row } from '../../styles/flex';
 import TimeChip from '../dashboard/TimeChip';
-import { formatTime } from '../../utils/date';
 import ArrowRightIcn from '../../assets/common/icon-arrow-right.svg?react';
 import RepairStatusChip from '../common/RepairStatusChip';
 import { formatPhone } from '../../utils/format';
 
 /**
- * @param {Object} repair - 수리 데이터 객체
+ * @param {Object} repair - 수리 데이터 객체 (estimateId, category, address...)
  * @param {boolean} isToday - 오늘 수리 건인지 여부 (TimeChip 명시용)
  * @param {function} onDetailClick - 상세보기 클릭 핸들러
  * @param {object} style - 추가 스타일링용
@@ -27,14 +26,27 @@ export default function BoxRepairDetail({
 }) {
   if (!repair) return null;
 
-  const { id, status, title, location, repairDate, amount, costBearer, contact, description } =
-    repair;
+  const {
+    estimateId: id,
+    status,
+    category: title,
+    address: location,
+    estimateTime: repairDateString,
+    estimatePrice: amount, // 💡 소수점이 포함된 값 (e.g., 10000.0)
+    payerName: costBearer,
+    phoneNumber: contact,
+    estimateComment: description,
+  } = repair;
+
+  const [datePart, timePart] = repairDateString
+    ? repairDateString.split(' / ')
+    : ['날짜 정보 없음', '시간 정보 없음'];
 
   return (
     <Container style={style} $borderColor={borderColor} onClick={() => onDetailClick?.(id)}>
       {isToday && !hideStatusChip && (
         <Header>
-          <TimeChip time={formatTime(repairDate)} />
+          <TimeChip time={timePart} />
           <RepairStatusChip status={status} />
         </Header>
       )}
@@ -50,15 +62,11 @@ export default function BoxRepairDetail({
       <Location>{location}</Location>
 
       <InfoTable>
-        {!isToday && (
-          <InfoRow
-            label="수리 일시"
-            value={`${new Date(repairDate).toLocaleDateString()} / ${formatTime(repairDate)}`}
-          />
-        )}
+        {!isToday && <InfoRow label="수리 일시" value={`${datePart} / ${timePart}`} />}
         <InfoRow
           label="금액"
-          value={repair?.decisionLater ? '상담 후 결정' : `${amount.toLocaleString()}원`}
+          // 💡 [수정] Math.round()를 추가하여 소수점을 반올림 처리합니다.
+          value={amount === 0 ? '상담 후 결정' : `${Math.round(amount).toLocaleString()}원`}
         />
         <InfoRow label="비용 부담" value={costBearer} />
         <InfoRow label="전화번호" value={formatPhone(contact)} />
@@ -71,7 +79,7 @@ export default function BoxRepairDetail({
 }
 
 /* =========================
- * 하위 컴포넌트 및 스타일
+ * 하위 컴포넌트 및 스타일 (변경 없음)
  * ========================= */
 const InfoRow = ({ label, value }) => (
   <Row style={{ justifyContent: 'space-between', alignItems: 'center' }}>
