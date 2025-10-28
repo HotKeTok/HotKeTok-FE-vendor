@@ -23,8 +23,6 @@ const useChatStore = create((set, get) => ({
     }
 
     const url = import.meta.env.VITE_API_BASE_URL_GENERAL;
-    console.log('웹소켓 연결 시도 중...', url);
-    console.log(accessToken);
 
     const client = new Client({
       webSocketFactory: () => new SockJS(`${url}/ws-stomp`),
