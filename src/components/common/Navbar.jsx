@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { typo, color } from '../../styles/tokens';
 
 import DashboardIcon from '../../assets/common/icon-dashboard.svg?react';
@@ -19,9 +19,15 @@ export default function Navbar() {
   const isChatActive = pathname === '/chat';
   const isMyPageActive = pathname.startsWith('/my-page');
 
+  const nav = useNavigate();
+
+  const goDashBoard = () => {
+    nav('/');
+  };
+
   return (
     <Container>
-      <img src="/logo.svg" alt="Logo" />
+      <img onClick={goDashBoard} style={{ cursor: 'pointer' }} src="/logo.svg" alt="Logo" />
       <Nav>
         <NavItem to="/" $active={isDashboardActive}>
           <DashboardIcon />
