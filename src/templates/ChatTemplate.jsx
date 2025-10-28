@@ -29,7 +29,7 @@ export default function ChatTemplate({
   return (
     <Container>
       {/* 4. [수정] selectedChatRoom이 null일 때 오류 방지 */}
-      {/* {modalOpen && selectedChatRoom && (
+      {modalOpen && selectedChatRoom && (
         <ModalConfirm
           title={selectedChatRoom.participants[0]?.userName}
           description="채팅방을 나가시겠어요?"
@@ -42,7 +42,7 @@ export default function ChatTemplate({
           cancelText="아니요"
           confirmText="나가기"
         />
-      )} */}
+      )}
       {/* 채팅방 목록 */}
       <LeftContainer>
         {/* 헤더 */}
