@@ -9,26 +9,27 @@ import ChatRoomHeader from '../components/chat/ChatRoomHeader';
 import ModalConfirm from '../components/common/ModalConfirm';
 
 export default function ChatTemplate({
-  chatRooms, // 채팅방 목록
-  selectedChatRoomId, // 클릭된 채팅방 ID
-  selectedChatMessages, // 선택된 채팅방의 메시지 목록
-  onSelectChatRoom, // 채팅방 선택 핸들러
-  onDeleteChatRoom, // 채팅방 삭제 핸들러
-  onSendMessage, // 메시지 전송 핸들러
+  chatRooms,
+  selectedChatRoomId,
+  selectedChatMessages,
+  selectedChatParticipants,
+  onSelectChatRoom,
+  onDeleteChatRoom,
+  onSendMessage,
+  currentUserId,
 }) {
-  const [read, setRead] = useState('all'); // ('all' | 'unread')
+  const [read, setRead] = useState('all');
   const [modalOpen, setModalOpen] = useState(false);
 
-  // todo : 실제 필터링된 채팅방 목록으로 변경
   const filteredChatRooms =
     read === 'all' ? chatRooms.data : chatRooms.data.filter(room => room.unreadCount > 0);
 
   const selectedChatRoom = chatRooms.data.find(room => room.roomId === selectedChatRoomId) || null;
 
-  const currentUserId = 101;
   return (
     <Container>
-      {modalOpen && (
+      {/* 4. [수정] selectedChatRoom이 null일 때 오류 방지 */}
+      {modalOpen && selectedChatRoom && (
         <ModalConfirm
           title={selectedChatRoom.participants[0]?.userName}
           description="채팅방을 나가시겠어요?"
@@ -74,7 +75,8 @@ export default function ChatTemplate({
 
       {/* 채팅방 */}
       <RightContainer>
-        {selectedChatRoom && selectedChatRoom.participants.length > 0 && (
+        {/* 3. [수정] selectedChatRoom이 있을 때만 헤더와 채팅방을, 없으면 Empty 뷰를 렌더링 */}
+        {selectedChatRoom ? (
           <>
             <FixedHeaderWrapper>
               <ChatRoomHeader
@@ -87,17 +89,18 @@ export default function ChatTemplate({
               />
             </FixedHeaderWrapper>
             <RightScrollContainer>
-              {selectedChatRoom ? (
-                <ChatRoom
-                  messages={selectedChatMessages}
-                  onSendMessage={onSendMessage}
-                  currentUserId={currentUserId}
-                />
-              ) : (
-                <div>채팅방을 선택해주세요.</div>
-              )}
+              <ChatRoom
+                messages={selectedChatMessages}
+                onSendMessage={onSendMessage}
+                currentUserId={currentUserId}
+                participants={selectedChatParticipants}
+              />
             </RightScrollContainer>
           </>
+        ) : (
+          <EmptyChatContainer>
+            <div>채팅방을 선택해주세요.</div>
+          </EmptyChatContainer>
         )}
       </RightContainer>
     </Container>
@@ -106,10 +109,8 @@ export default function ChatTemplate({
 
 const Container = styled.div`
   height: 100%;
-
   padding-bottom: 18px;
   box-sizing: border-box;
-
   display: grid;
   grid-template-columns: 46fr 67fr;
   column-gap: 16px;
@@ -117,32 +118,29 @@ const Container = styled.div`
 
 const SubContainerBase = styled.div`
   position: relative;
-
   background-color: #fff;
   border-radius: 20px;
   box-sizing: border-box;
-
   overflow: hidden;
 `;
 
 const FixedHeaderWrapper = styled.div`
   position: sticky;
   top: 0;
-
   width: 100%;
+  z-index: 10; // 스크롤 시 다른 컨텐츠에 가려지지 않도록
+  background-color: #fff; // 헤더 배경색
 `;
 
 const LeftContainer = styled(SubContainerBase)`
   display: flex;
   flex-direction: column;
   gap: 20px;
-
   padding: 20px;
 `;
 
 const RightContainer = styled(SubContainerBase)`
   border: 1px solid ${color('grayscale.300')};
-
   display: flex;
   flex-direction: column;
 `;
@@ -151,8 +149,17 @@ const RightScrollContainer = styled.div`
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-
   display: flex;
   flex-direction: column;
   gap: 10px;
+`;
+
+// 3. [추가] 채팅방 미선택 시 보여줄 빈 컨테이너
+const EmptyChatContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  ${typo.body1}
+  color: ${color('grayscale.500')};
 `;

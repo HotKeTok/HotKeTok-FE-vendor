@@ -1,65 +1,86 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ChatTemplate from '../templates/ChatTemplate';
-import { DUMMY_CHAT_ROOMS, DUMMY_CHATS } from '../mocks/chat';
-import { getAccessToken } from '../utils/auth';
+import useAuthStore from '../store/useAuthStore';
 import useChatStore from '../store/useChatStore';
+import { deleteChatroom } from '../api/chatting-service';
 
 export default function Chat() {
-  const accessToken = getAccessToken();
-  const [chatRooms, setChatRooms] = useState(DUMMY_CHAT_ROOMS); // 채팅방 목록
-  const [selectedChatRoomId, setSelectedChatRoomId] = useState(null); // 클릭된 채팅방 ID
-  const [selectedChatMessages, setSelectedChatMessages] = useState(
-    DUMMY_CHATS[selectedChatRoomId]?.data || []
-  ); // 선택된 채팅방의 메시지 목록
+  const userId = useAuthStore(state => state.userId);
+  const fetchChatRooms = useChatStore(state => state.fetchChatRooms);
+  const enterChatRoom = useChatStore(state => state.enterChatRoom);
+  const leaveChatRoom = useChatStore(state => state.leaveChatRoom);
+  const sendMessage = useChatStore(state => state.sendMessage);
 
-  const handleChatRoomDelete = roomId => {
-    // todo: 채팅방 삭제 API 연동
-    setChatRooms(prevRooms => ({
-      ...prevRooms,
-      data: prevRooms.data.filter(room => room.roomId !== roomId),
-    }));
-    if (selectedChatRoomId === roomId) {
-      setSelectedChatRoomId(null);
-      setSelectedChatMessages([]);
-    }
-  };
+  const chatRooms = useChatStore(state => state.chatRooms);
+  const messages = useChatStore(state => state.messages);
+  const participants = useChatStore(state => state.participants);
+  const [selectedChatRoomId, setSelectedChatRoomId] = useState(null);
 
-  const onSendMessage = content => {
-    // todo: 메시지 전송 API 연동
-    if (!selectedChatRoomId) return;
-    setSelectedChatMessages(prevMessages => [
-      ...prevMessages,
-      { id: Date.now(), content, sender: 'me' },
-    ]);
-  };
-
-  const { connect, disconnect } = useChatStore();
-
-  // todo: 로그인시 바로 연결하도록 수정 (임시)
+  // 채팅방 종류 get
   useEffect(() => {
-    // accessToken이 존재하면 (로그인 성공 시) 웹소켓 연결
-    if (accessToken !== '') {
-      connect(accessToken);
+    fetchChatRooms();
+  }, []);
+
+  // 채팅방 입장시 구독,
+  useEffect(() => {
+    if (selectedChatRoomId) {
+      // (accessToken이 필요하다면 enterChatRoom(accessToken, selectedChatRoomId)으로 호출)
+      enterChatRoom(selectedChatRoomId);
     }
 
-    // accessToken이 사라지면 (로그아웃 시) 웹소켓 연결 해제
-    // useEffect의 클린업 함수를 활용
+    // 컴포넌트 언마운트 또는 채팅방 변경 시 이전 구독 해제
     return () => {
-      disconnect();
+      leaveChatRoom();
     };
-  }, [accessToken, connect, disconnect]);
+  }, [selectedChatRoomId]); // 의존성 배열에서 액션 함수들 제거 (안정적)
+
+  // 채팅방 선택
+  const handleSelectChatRoom = roomId => {
+    setSelectedChatRoomId(roomId);
+  };
+
+  // 메시지 전송 핸들러
+  const handleSendMessage = content => {
+    if (!selectedChatRoomId || !userId || !content.trim()) return;
+
+    const payload = {
+      roomId: selectedChatRoomId,
+      senderId: userId,
+      content: content,
+    };
+    sendMessage(payload);
+  };
+
+  // 채팅방 나가기 (삭제)
+  const handleDeleteChatRoom = async roomId => {
+    if (!roomId) return;
+
+    try {
+      const success = await deleteChatroom(roomId);
+      if (success) {
+        fetchChatRooms(); // 목록 새로고침
+        setSelectedChatRoomId(null); // 선택 해제
+      } else {
+        alert('채팅방 나가기에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('채팅방 나가기 오류:', error);
+      alert('오류가 발생했습니다.');
+    }
+  };
+
+  const templateChatRooms = { data: chatRooms };
 
   return (
     <ChatTemplate
-      chatRooms={chatRooms}
+      chatRooms={templateChatRooms}
       selectedChatRoomId={selectedChatRoomId}
-      selectedChatMessages={selectedChatMessages}
-      onSelectChatRoom={roomId => {
-        setSelectedChatRoomId(roomId);
-        setSelectedChatMessages(DUMMY_CHATS[roomId]?.data || []);
-      }}
-      onDeleteChatRoom={handleChatRoomDelete}
-      onSendMessage={onSendMessage}
+      selectedChatMessages={messages} // 스토어의 실시간 메시지 목록
+      selectedChatParticipants={participants} // 스토어의 실시간 참여자 목록
+      onSelectChatRoom={handleSelectChatRoom}
+      onDeleteChatRoom={handleDeleteChatRoom}
+      onSendMessage={handleSendMessage}
+      currentUserId={userId} // 템플릿에 현재 유저 ID 전달
     />
   );
 }

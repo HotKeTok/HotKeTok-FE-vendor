@@ -1,10 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { typo, color } from '../../styles/tokens';
 import Chat from './Chat';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import IconSend from '../../assets/chat/icon-send.svg?react';
 import ChatInput from './ChatInput';
 
 // 날짜 구분자 포맷팅 함수
@@ -18,11 +17,11 @@ const formatDateSeparator = dateString => {
 /**
  * @description 헤더를 제외한 채팅방 컴포넌트
  * @param {Array} messages - 채팅 메시지 목록
- * @param {function} onSendMessage - 메시지 전송 핸들러
+ * @param {function} onSendMessage - 메시지 전송 핸들러 (문자열을 인자로 받음)
  * @param {number} currentUserId - 현재 사용자 ID
  */
-export default function ChatRoom({ messages, onSendMessage, currentUserId }) {
-  const [newMessage, setNewMessage] = useState('');
+export default function ChatRoom({ messages, onSendMessage, currentUserId, participants }) {
+  // message state는 ChatInput이 관리하므로 여기서는 필요 없음
   const messageEndRef = useRef(null);
 
   // 메시지 목록이 변경될 때마다 맨 아래로 스크롤
@@ -30,12 +29,9 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }) {
     messageEndRef.current?.scrollIntoView();
   }, [messages]);
 
-  // 메시지 전송 핸들러
-  const handleSendMessage = e => {
-    e.preventDefault();
-    if (newMessage.trim() === '') return;
-    onSendMessage(newMessage);
-    setNewMessage('');
+  const handleSendMessage = message => {
+    if (message.trim() === '') return;
+    onSendMessage(message);
   };
 
   // 날짜 구분자 렌더링을 위한 변수
@@ -44,26 +40,35 @@ export default function ChatRoom({ messages, onSendMessage, currentUserId }) {
   return (
     <Container>
       <MessageList>
-        {messages.map(msg => {
-          const isMine = msg.senderId === currentUserId; // 현재 사용자가 보낸 메시지인지 확인
-          const currentDate = new Date(msg.createdAt).toDateString();
-          let dateSeparator = null;
+        {messages.length > 0 &&
+          messages.map(msg => {
+            const key = msg.messageId || `${msg.senderId}-${msg.createdAt}`;
+            const isMine = msg.senderId === currentUserId;
+            const currentDate = new Date(msg.createdAt).toDateString();
+            let dateSeparator = null;
 
-          if (currentDate !== lastDate) {
-            dateSeparator = <DateSeparator>{formatDateSeparator(msg.createdAt)}</DateSeparator>;
-            lastDate = currentDate;
-          }
+            if (currentDate !== lastDate) {
+              dateSeparator = <DateSeparator>{formatDateSeparator(msg.createdAt)}</DateSeparator>;
+              lastDate = currentDate;
+            }
 
-          return (
-            <React.Fragment key={msg.messageId}>
-              {dateSeparator}
-              <Chat message={msg} isMine={isMine} />
-            </React.Fragment>
-          );
-        })}
+            const senderInfo = participants.find(p => p.userId === msg.senderId) || {
+              userName: '알 수 없음',
+              profileImageUrl: null,
+            };
+
+            return (
+              <React.Fragment key={key}>
+                {dateSeparator}
+                <Chat message={msg} isMine={isMine} senderInfo={senderInfo} />
+              </React.Fragment>
+            );
+          })}
+        {/* 스크롤을 위한 빈 div */}
         <div ref={messageEndRef} />
       </MessageList>
       <FixedInputWrapper>
+        {/* ChatInput은 내부적으로 state를 관리하고, onSendMessage(문자열)를 호출 */}
         <ChatInput onSendMessage={handleSendMessage} />
       </FixedInputWrapper>
     </Container>
@@ -98,5 +103,7 @@ const FixedInputWrapper = styled.div`
   bottom: 0;
   width: 100%;
 
+  /* 배경색을 MessageList와 맞추거나 부모와 맞춤 */
+  background-color: ${color('grayscale.100')};
   padding: 0px 30px 20px;
 `;

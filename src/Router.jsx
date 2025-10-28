@@ -14,11 +14,22 @@ import SignUp from './pages/SignUp';
 import TotalRepair from './pages/TotalRepair';
 import Welcome from './pages/Welcome';
 
+import useChatStore from './store/useChatStore';
+
 /* ---------------------------
  * ✅ 로그인 상태 체크
  * --------------------------- */
 const ProtectedRoute = () => {
   const token = getAccessToken();
+  const { connect } = useChatStore(); // ✅ connect 액션 가져오기
+
+  useEffect(() => {
+    if (token) {
+      // 토큰이 존재하면(로그인 상태) 웹소켓 연결 시도
+      connect();
+    }
+  }, [token, connect]);
+
   if (!token) return <Navigate to="/sign-in" replace />;
   return <Outlet />;
 };
@@ -27,10 +38,14 @@ const ProtectedRoute = () => {
  * ✅ /sign-in 진입 시 자동 로그아웃
  * --------------------------- */
 const SignInWithAutoLogout = () => {
+  const { disconnect } = useChatStore();
+
   useEffect(() => {
-    clearAuth(); // ✅ 로컬스토리지 토큰 제거
-  }, []);
-  return <SignIn />; // 기존 SignIn UI 그대로
+    clearAuth(); // 로컬스토리지 토큰 제거
+    disconnect(); // ✅ 웹소켓 연결 해제
+  }, [disconnect]); // ✅ 의존성 배열 추가
+
+  return <SignIn />;
 };
 
 /* ---------------------------
