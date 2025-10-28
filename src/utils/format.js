@@ -34,3 +34,19 @@ export function formatWithCommas(value) {
   if (clean === '') return '';
   return Number(clean).toLocaleString('ko-KR');
 }
+export const formatTimeInput = (newValue, prevValue) => {
+  let digits = newValue.replace(/\D/g, '');
+
+  if (newValue.length < prevValue.length && prevValue.includes(':')) {
+    if (newValue.length === 2) {
+      digits = newValue; // "09" 상태를 그대로 둠
+    }
+  }
+
+  let formattedValue = digits;
+  if (digits.length > 2) {
+    formattedValue = digits.slice(0, 2) + ':' + digits.slice(2);
+  }
+
+  return formattedValue;
+};

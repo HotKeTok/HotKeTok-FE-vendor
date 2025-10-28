@@ -30,11 +30,14 @@ export default function MyPageTemplate({
   const renderContent = () => {
     switch (tab) {
       case 'home':
+        if (!myPageData) return null;
         return <HomeContent myPageData={myPageData} onPatchProfileInfo={onPatchProfileInfo} />;
       case 'news':
+        if (!newsData) return null;
         return <NewsContent newsData={newsData} onEdit={onNewsEdit} onDelete={handleNewsDelete} />;
       case 'review':
-        return <ReviewContent reviewData={reviewData} />; // ✅ 항상 배열 전달
+        if (!reviewData) return null;
+        return <ReviewContent reviewData={reviewData} />;
       default:
         return null;
     }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SignInTemplate from '../templates/SignInTemplate';
 import { apiLogin } from '../api/auth-service';
 import { setTokens, setRole } from '../utils/auth';
+import useAuthStore from '../store/useAuthStore';
 
 export default function SignIn() {
   const nav = useNavigate();
@@ -34,8 +35,18 @@ export default function SignIn() {
       typeof envelope?.onBoardingStageFlag === 'boolean'
         ? envelope.onBoardingStageFlag
         : envelope?.onBoardingStage;
+    const userId = envelope?.userId || '';
 
-    return { isSuccess, accessToken, refreshToken, role, onBoardingStageFlag, payload, envelope };
+    return {
+      isSuccess,
+      accessToken,
+      refreshToken,
+      role,
+      onBoardingStageFlag,
+      userId,
+      payload,
+      envelope,
+    };
   };
 
   // ✅ 에러 분류기
@@ -61,7 +72,7 @@ export default function SignIn() {
       setSubmitting(true);
 
       const rawRes = await apiLogin({ logInId: logInId.trim(), password, role: 'VENDOR' });
-      const { isSuccess, accessToken, refreshToken, role, onBoardingStageFlag, payload } =
+      const { isSuccess, accessToken, refreshToken, role, onBoardingStageFlag, userId, payload } =
         extractFromLoginResponse(rawRes);
 
       if (!isSuccess) {
@@ -80,6 +91,7 @@ export default function SignIn() {
       // ✅ 토큰 및 역할 저장
       setTokens({ accessToken, refreshToken: refreshToken ?? '' });
       setRole(role || 'VENDOR');
+      useAuthStore.getState().setUserId(userId);
 
       // ✅ 네비게이션 조건
       if (role === 'NONE' && onBoardingStageFlag === false) {

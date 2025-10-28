@@ -25,11 +25,6 @@ export default function Calendar({
   onDateSelect,
   calendarData,
 }) {
-  // key-value 형태의 Map으로 변환
-  const dataMap = useMemo(() => {
-    return new Map(calendarData.map(item => [item.date, item]));
-  }, [calendarData]);
-
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const calendarStart = startOfWeek(monthStart);
@@ -60,9 +55,9 @@ export default function Calendar({
             return <EmptyCell key={day.toString()} />;
           }
 
-          const dayData = dataMap.get(format(day, 'yyyy-MM-dd'));
+          const dayData = calendarData ? calendarData[format(day, 'yyyy-MM-dd')] : undefined;
 
-          const repairCount = dayData ? dayData.repairs.length : 0;
+          const repairCount = dayData ? dayData.length : 0;
           const backgroundOpacity = repairCount * 0.1;
 
           return (
@@ -77,8 +72,8 @@ export default function Calendar({
               <span>{format(day, 'd')}</span>
               {dayData && (
                 <DataContainer>
-                  {dayData.repairs.map(repair => (
-                    <TypeText key={repair.id}>{repair.type}</TypeText>
+                  {dayData.map(repair => (
+                    <TypeText key={repair.id}>{repair.category}</TypeText>
                   ))}
                 </DataContainer>
               )}

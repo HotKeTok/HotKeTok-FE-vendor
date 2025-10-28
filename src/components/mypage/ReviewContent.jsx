@@ -85,7 +85,7 @@ export default function ReviewContent({ reviewData }) {
           {sortedReviews.map((review, idx) => {
             if (!review) return null;
 
-            const imgs = Array.isArray(review.reviewImages) ? review.reviewImages : [];
+            const imgs = Array.isArray(review.reviewImage) ? review.reviewImage : [];
             const id = review.id ?? idx;
             const expanded = !!expandedMap[id];
 

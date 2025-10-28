@@ -2,6 +2,8 @@ import styled, { css } from 'styled-components';
 import { Column, Row } from '../../styles/flex';
 import { typo, color } from '../../styles/tokens';
 import { daysOfWeek } from '../../constants/Date';
+import { useEffect } from 'react';
+import { formatTimeInput } from '../../utils/format';
 
 export default function HomeTimeEditor({
   runningTime,
@@ -9,59 +11,84 @@ export default function HomeTimeEditor({
   profileEditData,
   initialData,
 }) {
-  const handleTimeChange = (e, timeType, value) => {
+  useEffect(() => {
+    if (!profileEditData.runningTime?.working_day_of_week) {
+      setProfileEditData({
+        ...profileEditData,
+        runningTime: {
+          openingTime: runningTime?.openingTime || '',
+          closingTime: runningTime?.closingTime || '',
+          working_day_of_week: daysOfWeek,
+        },
+      });
+    }
+  }, [runningTime, setProfileEditData]);
+
+  const handleTimeChange = (timeType, value) => {
     const updatedRunningTime = {
-      ...runningTime,
+      ...(profileEditData.runningTime || initialData || {}),
       [timeType]: value,
     };
     setProfileEditData({ ...profileEditData, runningTime: updatedRunningTime });
   };
 
+  const onTimeInput = (e, timeType) => {
+    const newValue = e.target.value;
+    const prevValue = profileEditData.runningTime?.[timeType] || '';
+    const formattedValue = formatTimeInput(newValue, prevValue);
+    handleTimeChange(timeType, formattedValue);
+  };
+
   const handleDayToggle = (e, day) => {
-    const { working_day_of_week } = profileEditData.runningTime;
+    const { working_day_of_week } = profileEditData.runningTime
+      ? profileEditData.runningTime
+      : { working_day_of_week: daysOfWeek };
+
     let updatedDays;
-    if (working_day_of_week.includes(day)) {
+    if (working_day_of_week && working_day_of_week.includes(day)) {
       updatedDays = working_day_of_week.filter(d => d !== day);
     } else {
-      updatedDays = [...working_day_of_week, day];
+      updatedDays = [...(working_day_of_week || []), day];
     }
     const updatedRunningTime = {
-      ...runningTime,
+      ...(profileEditData.runningTime || initialData || {}),
       working_day_of_week: updatedDays,
     };
     setProfileEditData({ ...profileEditData, runningTime: updatedRunningTime });
   };
 
-  const { openingTime, closingTime, working_day_of_week } = profileEditData.runningTime;
+  let { openingTime, closingTime, working_day_of_week } = profileEditData.runningTime || {};
 
   return (
     <TimeEditorContainer>
       <Row $justify="flex-start" align="center" $gap={10} style={{ width: '100%' }}>
         <TimeInput
-          type="text"
-          placeholder="09:00"
+          type="tel"
+          inputMode="numeric"
+          placeholder={initialData?.openingTime || '09:00'}
           maxLength="5"
           value={openingTime || ''}
-          onChange={e => handleTimeChange(e, 'openingTime', e.target.value)}
-          $isDefault={openingTime == initialData.openingTime}
+          onChange={e => onTimeInput(e, 'openingTime')}
+          $isDefault={!openingTime || openingTime == initialData?.openingTime}
         />
         <Row $justify="center" $align="center">
           ~
         </Row>
         <TimeInput
-          type="text"
-          placeholder="18:00"
+          type="tel"
+          inputMode="numeric"
+          placeholder={initialData?.closingTime || '18:00'}
           maxLength="5"
           value={closingTime || ''}
-          onChange={e => handleTimeChange(e, 'closingTime', e.target.value)}
-          $isDefault={closingTime == initialData.closingTime}
+          onChange={e => onTimeInput(e, 'closingTime')}
+          $isDefault={!closingTime || closingTime == initialData?.closingTime}
         />
       </Row>
       <Column $gap={14} $justify="flex-start" $align="flex-start" style={{ width: '100%' }}>
         <Label>영업 요일을 선택해주세요</Label>
         <DayGrid>
           {daysOfWeek.map((day, index) => {
-            const isOpen = working_day_of_week.includes(day);
+            const isOpen = working_day_of_week ? working_day_of_week.includes(day) : true;
             return (
               <DayButton
                 key={index}
@@ -91,12 +118,18 @@ const TimeInput = styled.input`
   border: 1px solid ${color('grayscale.200')};
   border-radius: 6px;
   text-align: center;
-
   color: ${props => (props.$isDefault ? color('grayscale.400') : color('grayscale.900'))};
+
+  color: ${color('grayscale.900')};
+
+  &::placeholder {
+    color: ${color('grayscale.400')};
+  }
 
   &:focus {
     outline: none;
     border-color: ${color('brand.primary')};
+    color: ${color('grayscale.900')};
   }
 `;
 
@@ -116,13 +149,10 @@ const DayButton = styled.button`
   width: 100%;
   padding-top: 6px;
   padding-bottom: 6px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   ${typo('button2')}
-
   border: 1px solid transparent;
   border-radius: 6px;
 

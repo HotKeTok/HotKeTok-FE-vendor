@@ -1,10 +1,4 @@
 export const DASHBOARD_DUMMY_DATA = {
-  repairCounts: {
-    new: 0,
-    inProgress: 1,
-    completed: 2,
-  },
-
   calendarData: [
     {
       date: '2025-10-02',

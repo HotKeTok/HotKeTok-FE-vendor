@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { color, typo } from '../styles/tokens';
 import RepairStatusBox from '../components/dashboard/RepairStatusBox';
 import Calendar from '../components/dashboard/Calendar';
-import RepairDetailBox from '../components/total-repair/BoxRepairDetail';
+import BoxRepairDetailForDashboard from '../components/dashboard/BoxRepairDetailForDashboard';
 import { Column, Row } from '../styles/flex';
 import Modal from '../components/common/Modal';
 import ModalRepairDetail from '../components/total-repair/ModalRepairDetail';
@@ -11,26 +11,51 @@ import ModalImageSlider from '../components/common/ModalImageSlider';
 import { useNavigate } from 'react-router-dom';
 import { isToday, format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import NoDataIcn from '../assets/common/icon-no-content.svg?react';
+import { parseEstimateDataForModal } from '../utils/repair';
+import { apiFetchVendorEstimateDetail } from '../api/vendor-service';
 
 export default function DashboardTemplate({
-  repairCounts, // (1) 수리 현황별 개수
-  currentDate, // (2) 현재 캘린더의 연/월
-  selectedDate, // (2)(3) 현재 클릭된 날짜
-  selectedDateRepairs, // (3) 특정 날짜의 수리 데이터
-  calendarData, // (2) 캘린더 월 단위 데이터
-  setCurrentDate, // (2) 캘린더의 연/월 설정 함수
-  setSelectedDate, // (2) 선택된 날짜 설정 함수
+  repairCounts,
+  currentDate,
+  selectedDate,
+  selectedDateRepairs,
+  calendarData,
+  setCurrentDate,
+  setSelectedDate,
 }) {
   const navigate = useNavigate();
   const [clickedRepairId, setClickedRepairId] = useState(null); // 클릭된 수리 ID
   const [detailModalOpen, setDetailModalOpen] = useState(false); // 수리 상세 모달
 
+  // [추가] API로 가져온 모달 상세 데이터와 로딩 상태
+  const [modalData, setModalData] = useState(null);
+  const [isModalLoading, setIsModalLoading] = useState(false);
+
   const [selectedImageIndex, setSelectedImageIndex] = useState(null); // 클릭된 이미지 인덱스
   const [selectedImageModalOpen, setSelectedImageModalOpen] = useState(false); // 이미지 모달
 
-  const onDetailModalOpen = id => {
+  // [수정] onDetailModalOpen 함수를 async로 변경하고 API 호출 로직 추가
+  const onDetailModalOpen = async id => {
     setClickedRepairId(id);
     setDetailModalOpen(true);
+    setIsModalLoading(true);
+    setModalData(null); // 이전 데이터 초기화
+
+    try {
+      const response = await apiFetchVendorEstimateDetail(id);
+      if (response.success) {
+        setModalData(response.result); // API 응답 결과(raw data)를 state에 저장
+      } else {
+        console.error('견적서 상세 조회 실패:', response.message);
+        setDetailModalOpen(false); // 실패 시 모달 닫기
+      }
+    } catch (error) {
+      console.error('견적서 상세 조회 중 오류:', error);
+      setDetailModalOpen(false); // 오류 시 모달 닫기
+    } finally {
+      setIsModalLoading(false);
+    }
   };
 
   const onImageModalOpen = index => {
@@ -42,15 +67,19 @@ export default function DashboardTemplate({
     navigate(`/chat`); // todo : id 기반 채팅방으로 이동
   };
 
+  // [수정] API로 가져온 modalData를 파싱
+  // (isModalLoading이 true이고 modalData가 null일 때, parseEstimateDataForModal이 기본 객체를 반환해줌)
+  const parsedModalData = parseEstimateDataForModal(modalData);
+
   return (
     <Container>
-      {detailModalOpen && clickedRepairId && (
+      {detailModalOpen && (
         <ModalRepairDetail
           detailModalOpen={detailModalOpen}
           onClose={() => setDetailModalOpen(false)}
           onChat={() => onChatRoute(clickedRepairId)}
           onImgClick={index => onImageModalOpen(index)}
-          repairData={selectedDateRepairs.find(repair => repair.id === clickedRepairId)}
+          repairData={parsedModalData} // API로 가져와 파싱된 데이터
         />
       )}
       {selectedImageModalOpen && selectedImageIndex !== null && (
@@ -58,9 +87,8 @@ export default function DashboardTemplate({
           title="증상 사진"
           isOpen={selectedImageModalOpen && selectedImageIndex !== null}
           onClose={() => setSelectedImageModalOpen(false)}
-          imageUrls={
-            selectedDateRepairs.find(repair => repair.id === clickedRepairId)?.symptomPhotos || []
-          }
+          // [수정] 이미지 슬라이더도 API로 가져온 modalData의 symptomPhotos를 사용
+          imageUrls={modalData?.symptomPhotos || []}
           startIndex={selectedImageIndex}
         />
       )}
@@ -88,16 +116,27 @@ export default function DashboardTemplate({
           </H3>
           <Caption1>총 {selectedDateRepairs.length}개의 일정이 있어요.</Caption1>
         </Column>
-        <RightScrollContainer>
-          {selectedDateRepairs.map((repair, index) => (
-            <RepairDetailBox key={index} repair={repair} onDetailClick={onDetailModalOpen} />
-          ))}
-        </RightScrollContainer>
+        {selectedDateRepairs.length > 0 ? (
+          <RightScrollContainer>
+            {selectedDateRepairs.map((repair, index) => (
+              <BoxRepairDetailForDashboard
+                key={index}
+                repair={repair}
+                // [수정] 클릭 시 API를 호출하는 onDetailModalOpen 함수 연결
+                onDetailClick={() => onDetailModalOpen(repair.estimateId)}
+              />
+            ))}
+          </RightScrollContainer>
+        ) : (
+          <Column $gap={10} $justify="center" $align="center " style={{ flex: 1 }}>
+            <NoDataIcn width={24} height={24} />
+            <Body1>진행 중인 수리건이 없어요</Body1>
+          </Column>
+        )}
       </RightContainer>
     </Container>
   );
 }
-
 const Container = styled.div`
   height: 100%;
 
@@ -156,4 +195,9 @@ const H3 = styled.div`
 const Caption1 = styled.div`
   ${typo('caption1')};
   color: ${color('grayscale.600')};
+`;
+
+const Body1 = styled.div`
+  ${typo('body1')};
+  color: ${color('grayscale.300')};
 `;
