@@ -17,13 +17,7 @@ const formatTime = dateString => {
  * @param {object} message - 채팅 메시지 데이터
  * @param {boolean} isMine - 현재 사용자가 보낸 메시지인지 여부
  */
-export default function Chat({ message, isMine }) {
-  // todo: 실제 데이터에 따라 사용자 이름과 프로필 이미지를 동적으로 설정
-  const senderInfo = {
-    userName: message.senderId === 101 ? '김개발' : '박지효',
-    profileImageUrl: message.senderId === 101 ? null : 'https://picsum.photos/200',
-  };
-
+export default function Chat({ message, isMine, senderInfo }) {
   return (
     <MessageContainer isMine={isMine}>
       <ContentContainer isMine={isMine}>
