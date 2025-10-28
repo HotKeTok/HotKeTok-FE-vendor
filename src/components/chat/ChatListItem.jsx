@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { typo, color } from '../../styles/tokens';
-import ProfileDefaultIcn from '../../assets/common/icon-profile-default.svg';
+import ProfileDefaultIcn from '../../assets/common/icon-profile-default.svg?react';
 import { parseISO, isToday, format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 

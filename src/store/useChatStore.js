@@ -135,18 +135,10 @@ const useChatStore = create((set, get) => ({
     const client = get().stompClient;
 
     if (client && get().isConnected) {
-      const optimisticMessage = {
-        ...payload,
-        messageId: `temp-${Date.now()}`, // 중복되지 않는 임시 ID
-        createdAt: new Date().toISOString(), // 현재 시간
-      };
-
-      // 로컬 상태에 내 메시지를 먼저 추가
-      set(state => ({ messages: [...state.messages, optimisticMessage] }));
-
-      // 서버로 메시지 발행
+      console.log('메시지 전송 시도:', payload);
+      // 스토어에 저장된 client를 직접 사용
       client.publish({
-        destination: '/pub/chat/message',
+        destination: '/topic/chat/message',
         body: JSON.stringify(payload),
       });
     } else {
