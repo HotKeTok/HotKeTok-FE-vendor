@@ -1,4 +1,4 @@
-import { getChatroomDetail, getChatroomList } from '../api/chatting-service';
+import { getChatroomList, getChatroomDetail } from '../api/chatting-service';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { create } from 'zustand';
@@ -22,17 +22,19 @@ const useChatStore = create((set, get) => ({
       return;
     }
 
-    const wsUrl = import.meta.env.VITE_API_BASE_URL_GENERAL.replace('https://', 'wss://');
+    const url = import.meta.env.VITE_API_BASE_URL_GENERAL;
+    console.log('웹소켓 연결 시도 중...', url);
+    console.log(accessToken);
 
     const client = new Client({
-      brokerURL: `${wsUrl}/ws`,
+      webSocketFactory: () => new SockJS(`${url}/ws-stomp`),
 
       connectHeaders: {
         Authorization: `Bearer ${accessToken}`,
       },
       debug: str => console.log(new Date(), str),
 
-      reconnectDelay: 5000000, // 재연결 시도 간격 임시로 늘려둠 (새로고침하기)
+      reconnectDelay: 10000,
 
       onConnect: () => {
         console.log('STOMP 연결 성공!');
@@ -43,10 +45,13 @@ const useChatStore = create((set, get) => ({
       },
     });
 
+    // 하트 비트 관련 설정 추가
+    client.heartbeatIncoming = 10000;
+    client.heartbeatOutgoing = 10000;
+
     client.activate();
     set({ stompClient: client }); // 생성된 클라이언트 인스턴스를 상태에 저장
   },
-  // ...
 
   // 웹소켓 연결 해제
   disconnect: () => {
@@ -84,10 +89,10 @@ const useChatStore = create((set, get) => ({
     get().subscription?.unsubscribe(); // 이전 구독 해제
     set({ currentRoomId: roomId, messages: [] });
 
-    const { success, data } = await getChatroomDetail(accessToken, roomId);
-    if (success) {
-      set({ messages: data });
-    }
+    // const { success, data } = await getChatroomDetail(accessToken, roomId);
+    // if (success) {
+    //   set({ messages: data });
+    // }
 
     // 스토어에 저장된 client를 직접 사용
     const newSubscription = client.subscribe(`/sub/chat/room/${roomId}`, message => {
@@ -107,6 +112,7 @@ const useChatStore = create((set, get) => ({
   sendMessage: payload => {
     const client = get().stompClient;
     if (client && get().isConnected) {
+      console.log('메시지 전송 시도:', payload);
       // 스토어에 저장된 client를 직접 사용
       client.publish({
         destination: '/pub/chat/message',
