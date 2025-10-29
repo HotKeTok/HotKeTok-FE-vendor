@@ -88,7 +88,7 @@ export default function DashboardTemplate({
           isOpen={selectedImageModalOpen && selectedImageIndex !== null}
           onClose={() => setSelectedImageModalOpen(false)}
           // [수정] 이미지 슬라이더도 API로 가져온 modalData의 symptomPhotos를 사용
-          imageUrls={modalData?.symptomPhotos || []}
+          imageUrls={parsedModalData?.symptomPhotos || []}
           startIndex={selectedImageIndex}
         />
       )}
