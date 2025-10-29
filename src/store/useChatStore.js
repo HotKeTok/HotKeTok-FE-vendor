@@ -144,6 +144,14 @@ const useChatStore = create((set, get) => ({
       console.error('STOMP 클라이언트가 연결되지 않아 메시지를 보낼 수 없습니다.');
     }
   },
+
+  setUnreadCount: (roomId, count) => {
+    set(state => ({
+      chatRooms: state.chatRooms.map(room =>
+        room.roomId === roomId ? { ...room, unreadCount: count } : room
+      ),
+    }));
+  },
 }));
 
 export default useChatStore;
