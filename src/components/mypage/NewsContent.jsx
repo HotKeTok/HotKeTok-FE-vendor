@@ -87,15 +87,19 @@ export default function NewsContent({ newsData, onEdit, onDelete }) {
         <CustomButton onClick={() => setModal('register')}>글 작성하기</CustomButton>
       </RightBtn>
       <Column>
-        {sortedNewsData.map((news, index) => (
-          <NewsItem
-            key={index}
-            news={news}
-            onEdit={() => handleEditBtnClick(news.newsId)}
-            onDelete={() => handleDeleteBtnClick(news.newsId)}
-            style={{ borderBottom: index === newsData.length - 1 ? 0 : '1px solid #eee' }}
-          />
-        ))}
+        {sortedNewsData.length == 0 ? (
+          <NoContent>등록된 소식이 없습니다.</NoContent>
+        ) : (
+          sortedNewsData.map((news, index) => (
+            <NewsItem
+              key={index}
+              news={news}
+              onEdit={() => handleEditBtnClick(news.newsId)}
+              onDelete={() => handleDeleteBtnClick(news.newsId)}
+              style={{ borderBottom: index === newsData.length - 1 ? 0 : '1px solid #eee' }}
+            />
+          ))
+        )}
       </Column>
     </Column>
   );
@@ -118,4 +122,11 @@ const CustomButton = styled.button`
   &:hover {
     opacity: 0.9;
   }
+`;
+
+const NoContent = styled.div`
+  ${typo('body1')}
+  color: ${color('grayscale.500')};
+  padding: 40px 0;
+  text-align: center;
 `;
