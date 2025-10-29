@@ -10,7 +10,6 @@ export default function Chat() {
   const enterChatRoom = useChatStore(state => state.enterChatRoom);
   const leaveChatRoom = useChatStore(state => state.leaveChatRoom);
   const sendMessage = useChatStore(state => state.sendMessage);
-  const setUnreadCount = useChatStore(state => state.setUnreadCount);
 
   const chatRooms = useChatStore(state => state.chatRooms);
   const messages = useChatStore(state => state.messages);
@@ -27,8 +26,6 @@ export default function Chat() {
     if (selectedChatRoomId) {
       // (accessToken이 필요하다면 enterChatRoom(accessToken, selectedChatRoomId)으로 호출)
       enterChatRoom(selectedChatRoomId);
-      // 채팅방 입장시 unreadCount 초기화 로직 추가
-      setUnreadCount(selectedChatRoomId, 0);
     }
 
     // 컴포넌트 언마운트 또는 채팅방 변경 시 이전 구독 해제
