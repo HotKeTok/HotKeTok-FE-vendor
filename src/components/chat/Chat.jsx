@@ -5,6 +5,7 @@ import { format, parseISO } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import ProfileDefaultIcon from '../../assets/common/icon-profile-default.svg?react';
 import { Row } from '../../styles/flex';
+import { toKoreanTime } from '../../utils/date';
 
 const formatTime = dateString => {
   const date = parseISO(dateString);
@@ -34,9 +35,9 @@ export default function Chat({ message, isMine, senderInfo }) {
           </Row>
         )}
         <BubbleWrapper>
-          {isMine && <Timestamp>{formatTime(message.createdAt)}</Timestamp>}
+          {isMine && <Timestamp>{formatTime(toKoreanTime(message.createdAt))}</Timestamp>}
           <MessageBubble isMine={isMine}>{message.content}</MessageBubble>
-          {!isMine && <Timestamp>{formatTime(message.createdAt)}</Timestamp>}
+          {!isMine && <Timestamp>{formatTime(toKoreanTime(message.createdAt))}</Timestamp>}
         </BubbleWrapper>
       </ContentContainer>
     </MessageContainer>

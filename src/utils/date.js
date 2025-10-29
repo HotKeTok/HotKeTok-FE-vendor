@@ -96,3 +96,10 @@ export function formatYMDWithKoreanTime(isoString) {
   if (!t) return d;
   return `${d} / ${t}`;
 }
+
+// 8시간 전 시간으로 오는 시간을 8시간을 단순히 더해주는 함수
+export function toKoreanTime(isoString) {
+  const date = new Date(isoString);
+  date.setHours(date.getHours() + 9);
+  return date.toISOString();
+}
