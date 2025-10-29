@@ -4,6 +4,8 @@ import { typo, color } from '../../styles/tokens';
 import ProfileDefaultIcn from '../../assets/common/icon-profile-default.svg?react';
 import { parseISO, isToday, format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import useAuthStore from '../../store/useAuthStore';
+import { toKoreanTime } from '../../utils/date';
 
 // 오늘과 다른 날짜를 구분하여 반환하는 함수
 const formatTime = dateString => {
@@ -21,7 +23,11 @@ export default function ChatListItem({
   room, // 채팅방 데이터
   onSelect, // 채팅방 선택 핸들러
 }) {
-  const title = room.participants.map(p => p.userName).join(', ');
+  const userId = useAuthStore(state => state.userId);
+  const title = room.participants
+    .filter(participant => participant.userId !== userId)
+    .map(participant => participant.userName)
+    .join(', ');
 
   // 첫 번째 참여자의 프로필 이미지를 대표 이미지로 사용 => 추후 개선 필요
   const profileImage = room.participants[0]?.profileImageUrl;
@@ -41,7 +47,7 @@ export default function ChatListItem({
       </ContentWrapper>
 
       <MetaWrapper>
-        <Timestamp>{formatTime(room.lastMessageTime)}</Timestamp>
+        <Timestamp>{formatTime(toKoreanTime(room.lastMessageTime))}</Timestamp>
         {room.unreadCount > 0 && <UnreadBadge>{room.unreadCount}</UnreadBadge>}
       </MetaWrapper>
     </ListItem>
