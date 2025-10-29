@@ -34,11 +34,38 @@ export default function HomeContent({ myPageData, onPatchProfileInfo }) {
   const [selectedImageModalOpen, setSelectedImageModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-  const images = myPageData.introductionImage || [];
-  const hasMoreThanThreeImages = images.length > 3;
+  const [imageUrls, setImageUrls] = useState([]);
 
-  const firstThreeImages = images.slice(0, 3);
-  const nestedGridImages = images.slice(3, 7);
+  useEffect(() => {
+    const originalImages = myPageData.introductionImage || [];
+
+    const newDisplayUrls = originalImages.map(src => {
+      if (src instanceof Blob) {
+        return URL.createObjectURL(src);
+      }
+      if (typeof src === 'string') {
+        return src;
+      }
+      if (src && typeof src.url === 'string') {
+        return src.url;
+      }
+      return '';
+    });
+
+    setImageUrls(newDisplayUrls);
+
+    return () => {
+      newDisplayUrls.forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [myPageData.introductionImage]);
+
+  const hasMoreThanThreeImages = imageUrls.length > 3;
+  const firstThreeImages = imageUrls.slice(0, 3);
+  const nestedGridImages = imageUrls.slice(3, 7);
 
   const actualNestedGridImageCount = nestedGridImages.length;
   const showNestedGridOverlay = hasMoreThanThreeImages && actualNestedGridImageCount > 1;
@@ -78,15 +105,8 @@ export default function HomeContent({ myPageData, onPatchProfileInfo }) {
     });
   };
 
-  const {
-    introductionImage,
-    introduction,
-    phoneNumber,
-    category,
-    addressAndDetail,
-    detailAddress,
-    runningTime,
-  } = myPageData;
+  const { introduction, phoneNumber, category, addressAndDetail, detailAddress, runningTime } =
+    myPageData;
   const { openingTime, closingTime, working_day_of_week } = runningTime === null ? {} : runningTime;
 
   const notWorkingDays = working_day_of_week
@@ -107,7 +127,7 @@ export default function HomeContent({ myPageData, onPatchProfileInfo }) {
           title="증상 사진"
           isOpen={selectedImageModalOpen && selectedImageIndex !== null}
           onClose={() => setSelectedImageModalOpen(false)}
-          imageUrls={introductionImage}
+          imageUrls={imageUrls}
           startIndex={selectedImageIndex}
         />
         <Introduction>
@@ -177,7 +197,7 @@ export default function HomeContent({ myPageData, onPatchProfileInfo }) {
           />
         </Column>
 
-        {images.length > 0 && (
+        {imageUrls.length > 0 && (
           <ImageGallerySection>
             {!showAllImages ? (
               <ImageList>
@@ -185,7 +205,7 @@ export default function HomeContent({ myPageData, onPatchProfileInfo }) {
                   <HomeContentImageItem
                     key={`first-${index}`}
                     src={src}
-                    alt={`갤러리 이미지 ${index + 1}`}
+                    alt={`갤S러리 이미지 ${index + 1}`}
                     onClick={() => handleImageClick(index)}
                   />
                 ))}
@@ -200,24 +220,26 @@ export default function HomeContent({ myPageData, onPatchProfileInfo }) {
 
                 {hasMoreThanThreeImages && nestedGridImages.length > 1 && (
                   <NestedGridWrapper onClick={handleExpandClick}>
-                    {nestedGridImages.map((src, index) => (
-                      <NestedImageItemContainer key={`nested-${index}`}>
-                        <NestedImageItem src={src} alt={`갤러리 이미지 ${index + 4}`} />
-                        {index === nestedGridImages.length - 1 && showNestedGridOverlay && (
-                          <NestedOverlayContent>
-                            <PhotoIcnWrapper>
-                              <PhotoIcn />
-                            </PhotoIcnWrapper>
-                          </NestedOverlayContent>
-                        )}
-                      </NestedImageItemContainer>
-                    ))}
+                    {nestedGridImages.map((src, index) => {
+                      return (
+                        <NestedImageItemContainer key={`nested-${index}`}>
+                          <NestedImageItem src={src} alt={`갤러리 이미지 ${index + 4}`} />
+                          {index === nestedGridImages.length - 1 && showNestedGridOverlay && (
+                            <NestedOverlayContent>
+                              <PhotoIcnWrapper>
+                                <PhotoIcn />
+                              </PhotoIcnWrapper>
+                            </NestedOverlayContent>
+                          )}
+                        </NestedImageItemContainer>
+                      );
+                    })}
                   </NestedGridWrapper>
                 )}
               </ImageList>
             ) : (
               <AllImagesGrid>
-                {images.map((src, index) => (
+                {imageUrls.map((src, index) => (
                   <HomeContentImageItem
                     key={`all-${index}`}
                     src={src}
