@@ -64,20 +64,22 @@ export default function DashboardTemplate({
   };
 
   const onChatRoute = id => {
-    navigate(`/chat`); // todo : id 기반 채팅방으로 이동
+    console.log('채팅방 이동 id:', id);
+    navigate(`/chat`, { state: { roomId: id } }); // todo : id 기반 채팅방으로 이동
   };
 
   // [수정] API로 가져온 modalData를 파싱
   // (isModalLoading이 true이고 modalData가 null일 때, parseEstimateDataForModal이 기본 객체를 반환해줌)
   const parsedModalData = parseEstimateDataForModal(modalData);
 
+  console.log(modalData);
   return (
     <Container>
       {detailModalOpen && (
         <ModalRepairDetail
           detailModalOpen={detailModalOpen}
           onClose={() => setDetailModalOpen(false)}
-          onChat={() => onChatRoute(clickedRepairId)}
+          onChat={() => onChatRoute(modalData?.roomId)}
           onImgClick={index => onImageModalOpen(index)}
           repairData={parsedModalData} // API로 가져와 파싱된 데이터
         />

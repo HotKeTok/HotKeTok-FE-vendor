@@ -43,7 +43,9 @@ export default function ChatListItem({
           <Title>{title}</Title>
         </TitleLine>
         <Location>동작 핫케톡 스테이 304호</Location>
-        <LastMessage>{room.lastMessageContent}</LastMessage>
+        <LastMessage>
+          {room.lastMessageContent.startsWith('{') ? '견적서 메시지' : room.lastMessageContent}
+        </LastMessage>
       </ContentWrapper>
 
       <MetaWrapper>

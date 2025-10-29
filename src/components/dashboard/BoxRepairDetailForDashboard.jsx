@@ -1,4 +1,3 @@
-// src/components/total-repair/BoxRepairDetail.jsx
 import React from 'react';
 import styled from 'styled-components';
 import { typo, color } from '../../styles/tokens';

@@ -13,6 +13,7 @@ export const parseEstimateDataForModal = apiData => {
 
   const repairData = {
     id: apiData.estimateId,
+    roomId: apiData.roomId,
     title: apiData.category,
     location: apiData.address,
     contact: apiData.phoneNumber,

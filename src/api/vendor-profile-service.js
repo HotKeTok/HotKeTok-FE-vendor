@@ -16,7 +16,9 @@ export async function getVendorProfile() {
 // profileFile : 프로필 이미지 파일
 // introFiles : 소개 이미지 파일 배열
 export async function patchVendorProfile(jsonData, profileFile, introFiles) {
-  console.log(introFiles);
+  console.log('jsonData', jsonData);
+  console.log('profileFile', profileFile);
+  console.log('introFiles', introFiles);
   const formData = new FormData();
 
   // request append
@@ -71,7 +73,6 @@ export async function patchVendorProfile(jsonData, profileFile, introFiles) {
 export async function deleteVendorIntroImage(imageUrls) {
   const { data } = await client.delete('/vendor-service/profile', {
     introductionImages: imageUrls,
-    profileImage: null,
   });
   return {
     success: data.success,

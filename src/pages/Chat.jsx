@@ -3,6 +3,7 @@ import ChatTemplate from '../templates/ChatTemplate';
 import useAuthStore from '../store/useAuthStore';
 import useChatStore from '../store/useChatStore';
 import { deleteChatroom } from '../api/chatting-service';
+import { useLocation } from 'react-router-dom';
 
 export default function Chat() {
   const userId = useAuthStore(state => state.userId);
@@ -17,17 +18,28 @@ export default function Chat() {
   const participants = useChatStore(state => state.participants);
   const [selectedChatRoomId, setSelectedChatRoomId] = useState(null);
 
+  const location = useLocation();
+  const locationState = location.state || {};
+
   // 채팅방 종류 get
   useEffect(() => {
     fetchChatRooms();
   }, []);
 
+  useEffect(() => {
+    if (locationState.roomId && chatRooms.length > 0 && !selectedChatRoomId) {
+      const roomExists = chatRooms.some(room => room.roomId === locationState.roomId);
+
+      if (roomExists) {
+        setSelectedChatRoomId(locationState.roomId);
+      }
+    }
+  }, [chatRooms, locationState.roomId, selectedChatRoomId]);
+
   // 채팅방 입장시 구독,
   useEffect(() => {
     if (selectedChatRoomId) {
-      // (accessToken이 필요하다면 enterChatRoom(accessToken, selectedChatRoomId)으로 호출)
       enterChatRoom(selectedChatRoomId);
-      // 채팅방 입장시 unreadCount 초기화 로직 추가
       setUnreadCount(selectedChatRoomId, 0);
     }
 
