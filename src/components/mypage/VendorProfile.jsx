@@ -18,7 +18,7 @@ export default function VendorProfile({ myPageData }) {
         <Row $gap={14} $align="center" style={{ padding: '4px 0px' }}>
           <Rate $gap={6} $align="center">
             {<StarIcn />}
-            {` ${rate}`}
+            {rate !== undefined && rate !== null ? ` ${rate.toFixed(2)}` : ' 0.00'}
           </Rate>
           <Review>{`후기 ${reviewCount}`}</Review>
         </Row>
