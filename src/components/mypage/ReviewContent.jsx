@@ -107,10 +107,7 @@ export default function ReviewContent({ reviewData }) {
                   {/* 헤더 */}
                   <Row $justify={'space-between'} $align={'center'}>
                     <Row $gap={10} $align={'center'}>
-                      <ProfileImg
-                        src={review.profileImg || 'https://via.placeholder.com/32'}
-                        alt="profile"
-                      />
+                      <ProfileImg src={review.writerProfileImage} alt="profile" />
                       <Column>
                         <UserName>{review.reviewer || '익명 사용자'}</UserName>
                         <Row $gap={6} $align={'center'}>
