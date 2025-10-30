@@ -98,7 +98,6 @@ export default function ModalProfileInfo({
                 const file = e.target.files[0];
                 if (file) {
                   const imageUrl = URL.createObjectURL(file);
-                  console.log(file.name, imageUrl, file);
                   setProfileEditData({
                     ...profileEditData,
                     profileImage: {

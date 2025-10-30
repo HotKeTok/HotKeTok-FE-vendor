@@ -13,7 +13,7 @@ import { Row } from '../../styles/flex';
 export default function ChatRoomHeader({
   participants,
   profileImageUrl,
-  status = 'COMPLETED', // TODO: api 수정시 반영
+  status = 'COMPLETED',
   onDelete,
 }) {
   const menuOptions = [{ label: '채팅방 나가기', onClick: onDelete }];

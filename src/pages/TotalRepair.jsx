@@ -185,6 +185,7 @@ export default function TotalRepair() {
       description: d.requestDescription || '',
       estimateDetails: d.estimateComment || '',
       symptomPhotos: normalizeImages(d.requestImage),
+      roomId: d.roomId || null, // 채팅방 ID 추가
     };
   };
 

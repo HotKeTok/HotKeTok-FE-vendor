@@ -82,7 +82,7 @@ export default function ChatTemplate({
               <ChatRoomHeader
                 participants={selectedChatRoom.participants}
                 profileImageUrl={selectedChatRoom.participants[0]?.profileImageUrl}
-                status={selectedChatRoom.status}
+                status={selectedChatRoom.estimateStatus}
                 onDelete={() => {
                   setModalOpen(true);
                 }}

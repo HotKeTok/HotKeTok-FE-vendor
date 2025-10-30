@@ -8,6 +8,7 @@ import RepairCard from '../components/total-repair/RepairCard';
 import BoxRepairDetail from '../components/total-repair/BoxRepairDetail';
 import ModalRepairDetail from '../components/total-repair/ModalRepairDetail';
 import ModalImageSlider from '../components/common/ModalImageSlider';
+import { useNavigate } from 'react-router-dom';
 
 export default function TotalRepairTemplate({
   loading = false,
@@ -18,6 +19,7 @@ export default function TotalRepairTemplate({
   doneRepairs = { count: 0, items: [] },
   loadDetail, // ✅ 추가: 상세 로딩 함수 (optional)
 }) {
+  const navigate = useNavigate();
   // ===== 모달/슬라이더 상태 =====
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedRepair, setSelectedRepair] = useState(null);
@@ -29,6 +31,7 @@ export default function TotalRepairTemplate({
     if (typeof loadDetail === 'function') {
       try {
         const detail = await loadDetail(id);
+        console.log(detail);
         setSelectedRepair(detail);
         setDetailModalOpen(true);
         return;
@@ -59,7 +62,7 @@ export default function TotalRepairTemplate({
     setDetailModalOpen(false);
   };
   const handleChat = () => {
-    alert('채팅으로 이동합니다. (데모)');
+    navigate(`/chat`, { state: { roomId: selectedRepair?.roomId } });
   };
 
   // 이미지 슬라이더 모달
