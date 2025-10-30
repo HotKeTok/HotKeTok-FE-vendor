@@ -123,9 +123,7 @@ export async function deleteVendorNews(newsId) {
 
 // GET 업체 리뷰 조회
 export async function getVendorReviews(vendorId) {
-  const { data } = await client.get(
-    `${import.meta.env.VITE_API_BASE_URL_GENERAL}/review-service?vendorId=${vendorId}`
-  );
+  const { data } = await client.get(`/review-service?vendorId=${vendorId}`);
   return {
     success: data.success,
     data: data?.data ?? null,
